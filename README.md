@@ -52,6 +52,33 @@ Todos con contraseña `Ganabol2026`:
 | campo@ganabol.bo | Personal de campo |
 | veterinario@ganabol.bo | Veterinario |
 
+## Puesta en marcha de la aplicación móvil
+
+El repositorio guarda el código de la app, no las carpetas de plataforma, que
+se generan localmente:
+
+```bash
+cd mobile
+flutter create . --platforms=android,windows
+flutter pub get
+dart run build_runner build
+```
+
+Para correrla apuntando a un backend local:
+
+```bash
+# Emulador de Android (10.0.2.2 es el alias del host)
+flutter run --dart-define=API_URL=http://10.0.2.2:3000/api
+
+# Teléfono físico: usar la IP de la máquina en la red local
+flutter run --dart-define=API_URL=http://192.168.1.10:3000/api
+
+# Escritorio, para iterar la interfaz con hot reload
+flutter run -d windows --dart-define=API_URL=http://localhost:3000/api
+```
+
+Pruebas: `flutter test` en `mobile/`, `npm test` en `backend/`.
+
 ## Decisiones de diseño
 
 **Identificadores ULID generados en el cliente.** El animal recibe su
@@ -66,3 +93,11 @@ transmitir.
 **Unicidad de caravana por predio.** La numeración de manejo se repite entre
 establecimientos distintos, de modo que la restricción global sería incorrecta
 para el dominio.
+
+**La interfaz lee y escribe siempre contra la base local.** Ninguna pantalla
+espera a la red: las consultas son streams sobre SQLite y la sincronización
+ocurre aparte. Cuando trae cambios del servidor, la lista se actualiza sola.
+
+**Objetivos táctiles de 56 px y color siempre acompañado de texto.** La app se
+usa a la intemperie, con sol directo y las manos ocupadas; la distinción por
+color solo no es confiable en esas condiciones.

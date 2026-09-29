@@ -1,0 +1,46 @@
+name: ganabol
+description: Sistema móvil de gestión ganadera para explotaciones bovinas tradicionales.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Estado
+  flutter_riverpod: ^2.6.1
+
+  # Navegación
+  go_router: ^14.6.2
+
+  # Persistencia local (offline-first)
+  drift: ^2.23.1
+  drift_flutter: ^0.2.4
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Comunicación con la API
+  dio: ^5.7.0
+  connectivity_plus: ^6.1.1
+
+  # Credenciales
+  flutter_secure_storage: ^9.2.4
+
+  # Utilidades
+  ulid: ^2.0.1
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  drift_dev: ^2.23.1
+  build_runner: ^2.4.14
+
+flutter:
+  uses-material-design: true
