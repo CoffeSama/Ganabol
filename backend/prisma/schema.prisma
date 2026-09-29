@@ -1,0 +1,162 @@
+// GanaBol — Esquema de base de datos
+// Sistema móvil de gestión ganadera para explotaciones bovinas tradicionales
+// del departamento de Santa Cruz, Bolivia.
+//
+// Incremento 1: Identidad, accesos e inventario bovino.
+// Las entidades de sanidad, pesaje y comercialización corresponden a
+// incrementos posteriores y no se implementan en esta versión.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enumeraciones del dominio ganadero
+// ---------------------------------------------------------------------------
+
+/// Roles de acceso al sistema (RBAC).
+enum Rol {
+  ADMINISTRADOR
+  PROPIETARIO
+  PERSONAL_CAMPO
+  VETERINARIO
+}
+
+enum Sexo {
+  MACHO
+  HEMBRA
+}
+
+/// Categoría zootécnica del animal. Se deriva de sexo y edad, pero se
+/// almacena de forma explícita porque el productor la asigna en campo y no
+/// siempre coincide con el cálculo automático (p. ej. destete tardío).
+enum CategoriaAnimal {
+  TERNERO
+  TERNERA
+  NOVILLO
+  VAQUILLA
+  TORO
+  VACA
+  BUEY
+}
+
+/// Fase productiva dentro del ciclo de crianza–destete–engorde.
+enum FaseProductiva {
+  CRIANZA
+  DESTETE
+  ENGORDE
+}
+
+/// Estado del animal dentro del hato.
+enum EstadoAnimal {
+  ACTIVO
+  VENDIDO
+  MUERTO
+  EXTRAVIADO
+}
+
+// ---------------------------------------------------------------------------
+// Entidades
+// ---------------------------------------------------------------------------
+
+/// Unidad productiva (establecimiento ganadero). Agrupa los animales y
+/// delimita el alcance de los permisos de cada usuario.
+model Predio {
+  id           String   @id @db.VarChar(26)
+  nombre       String   @db.VarChar(120)
+  ubicacion    String?  @db.VarChar(200)
+  superficieHa Decimal? @map("superficie_ha") @db.Decimal(10, 2)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  usuarios Usuario[]
+  animales Animal[]
+
+  @@index([deletedAt])
+  @@map("predio")
+}
+
+/// Usuario del sistema. La contraseña se almacena únicamente como hash
+/// bcrypt; el sistema nunca persiste la credencial en claro.
+model Usuario {
+  id           String  @id @db.VarChar(26)
+  email        String  @unique @db.VarChar(160)
+  passwordHash String  @map("password_hash") @db.VarChar(72)
+  nombre       String  @db.VarChar(120)
+  rol          Rol     @default(PERSONAL_CAMPO)
+  activo       Boolean @default(true)
+
+  /// Predio al que pertenece el usuario. El ADMINISTRADOR puede no tener
+  /// predio asignado (acceso transversal).
+  predioId String? @map("predio_id") @db.VarChar(26)
+  predio   Predio? @relation(fields: [predioId], references: [id], onDelete: SetNull)
+
+  ultimoAccesoAt DateTime? @map("ultimo_acceso_at")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  animalesRegistrados Animal[] @relation("AnimalRegistradoPor")
+
+  @@index([predioId])
+  @@index([deletedAt])
+  @@map("usuario")
+}
+
+/// Animal del hato, con identificación individual.
+///
+/// Decisiones de diseño relevantes para el funcionamiento offline-first:
+///
+/// - El identificador primario es un ULID generado en el dispositivo, no un
+///   autoincremental del servidor. Esto permite crear animales sin conexión
+///   sin riesgo de colisión al sincronizar.
+/// - `updatedAt` actúa como reloj lógico para la resolución de conflictos
+///   por última escritura (LWW) sobre los campos descriptivos.
+/// - El borrado es lógico (`deletedAt`): la sincronización necesita propagar
+///   la baja a los dispositivos, cosa que un DELETE físico no permite.
+model Animal {
+  id String @id @db.VarChar(26)
+
+  /// Identificador visible del animal (caravana / número de manejo).
+  /// Único dentro del predio, no a nivel global.
+  caravana String  @db.VarChar(30)
+  nombre   String? @db.VarChar(80)
+
+  sexo            Sexo
+  raza            String?         @db.VarChar(60)
+  fechaNacimiento DateTime?       @map("fecha_nacimiento") @db.Date
+  categoria       CategoriaAnimal
+  fase            FaseProductiva  @default(CRIANZA)
+  estado          EstadoAnimal    @default(ACTIVO)
+
+  /// Filiación materna, para trazabilidad del hato.
+  madreId String? @map("madre_id") @db.VarChar(26)
+  madre   Animal? @relation("Filiacion", fields: [madreId], references: [id], onDelete: SetNull)
+  crias   Animal[] @relation("Filiacion")
+
+  predioId String @map("predio_id") @db.VarChar(26)
+  predio   Predio @relation(fields: [predioId], references: [id], onDelete: Cascade)
+
+  registradoPorId String?  @map("registrado_por_id") @db.VarChar(26)
+  registradoPor   Usuario? @relation("AnimalRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+
+  observaciones String? @db.VarChar(500)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([predioId, caravana], name: "caravana_unica_por_predio")
+  @@index([predioId, estado])
+  @@index([updatedAt])
+  @@index([deletedAt])
+  @@map("animal")
+}
