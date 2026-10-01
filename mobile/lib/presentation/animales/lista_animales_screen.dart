@@ -132,7 +132,7 @@ class _ListaAnimalesScreenState extends ConsumerState<ListaAnimalesScreen> {
                             ref.read(filtrosProvider.notifier).state =
                                 filtros.copiarCon(limpiarFase: true),
                       ),
-                      for (final fase in FaseProductiva.values)
+                      for (final fase in FaseManejo.values)
                         _ChipFase(
                           etiqueta: fase.etiqueta,
                           activo: filtros.fase == fase,
@@ -227,13 +227,13 @@ class _TarjetaAnimal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final esquema = Theme.of(context).colorScheme;
-    final pendiente = animal.estadoSync == 'PENDIENTE';
-    final conflicto = animal.estadoSync == 'CONFLICTO';
+    final pendiente = animal.estadoSync == 'pendiente';
+    final conflicto = animal.estadoSync == 'conflicto';
 
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        onTap: () => context.push('/animales/${animal.id}'),
+        onTap: () => context.push('/animales/${animal.idAnimal}'),
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Row(
@@ -246,7 +246,7 @@ class _TarjetaAnimal extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  animal.sexo == 'MACHO' ? Icons.male : Icons.female,
+                  animal.sexo == 'M' ? Icons.male : Icons.female,
                   color: AppTheme.colorFase(animal.fase),
                   size: 26,
                 ),
@@ -263,18 +263,6 @@ class _TarjetaAnimal extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                        if (animal.nombre != null) ...[
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              animal.nombre!,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  color: esquema.onSurfaceVariant),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -289,10 +277,10 @@ class _TarjetaAnimal extends StatelessWidget {
                         ),
                         EtiquetaEstado(
                           texto:
-                              FaseProductiva.desde(animal.fase).etiqueta,
+                              FaseManejo.desde(animal.fase).etiqueta,
                           color: AppTheme.colorFase(animal.fase),
                         ),
-                        if (animal.estado != 'ACTIVO')
+                        if (animal.estado != 'activo')
                           EtiquetaEstado(
                             texto:
                                 EstadoAnimal.desde(animal.estado).etiqueta,

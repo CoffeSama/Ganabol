@@ -10,22 +10,24 @@ import 'package:ganabol/data/local/database.dart';
 void main() {
   late BaseDatosLocal db;
 
-  const predio = '01JGKQZ8XW4P7N2M5R8T3V6Y00';
+  const usuario = '01USUARIOUSUARIOUSUARIOUS';
 
   AnimalesCompanion animal(
-    String id,
+    String idAnimal,
     String caravana, {
-    String fase = 'CRIANZA',
-    String? nombre,
+    String fase = 'crianza',
+    String categoria = 'ternero',
+    String sexo = 'M',
+    String? raza,
   }) =>
       AnimalesCompanion.insert(
-        id: id,
+        idAnimal: idAnimal,
+        idUsuario: '${usuario}1',
         caravana: caravana,
-        sexo: 'MACHO',
-        categoria: 'TERNERO',
-        predioId: predio,
-        fase: Value(fase),
-        nombre: Value(nombre),
+        categoria: categoria,
+        sexo: sexo,
+        fase: fase,
+        raza: Value(raza),
       );
 
   setUp(() => db = BaseDatosLocal(NativeDatabase.memory()));
@@ -39,11 +41,12 @@ void main() {
 
       expect(guardado, isNotNull);
       expect(guardado!.caravana, 'A-101');
-      expect(guardado.estadoSync, 'PENDIENTE');
+      expect(guardado.estadoSync, 'pendiente');
+      expect(guardado.estado, 'activo');
+      expect(guardado.eliminado, isFalse);
     });
 
-    test('no admite dos animales con la misma caravana en el predio',
-        () async {
+    test('no admite dos animales con la misma caravana', () async {
       await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
 
       expect(
@@ -56,18 +59,18 @@ void main() {
         () async {
       await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
       await db.guardarAnimal(
-        animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101', nombre: 'Manchado'),
+        animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101', raza: 'Nelore'),
       );
 
       final todos = await db.select(db.animales).get();
 
       expect(todos, hasLength(1));
-      expect(todos.single.nombre, 'Manchado');
+      expect(todos.single.raza, 'Nelore');
     });
   });
 
   group('Baja lógica', () {
-    test('el animal dado de baja desaparece del hato pero sigue en la base',
+    test('el animal dado de baja sale del hato pero sigue en la base',
         () async {
       await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
       await db.marcarSincronizado('01AAAAAAAAAAAAAAAAAAAAAAAA');
@@ -79,20 +82,20 @@ void main() {
 
       expect(visibles, isEmpty);
       expect(enBase, isNotNull);
-      expect(enBase!.deletedAt, isNotNull);
-      // Debe volver a sincronizarse para propagar la baja al servidor.
-      expect(enBase.estadoSync, 'PENDIENTE');
+      expect(enBase!.eliminado, isTrue);
+      // Debe volver a consolidarse para propagar la baja al servidor.
+      expect(enBase.estadoSync, 'pendiente');
     });
   });
 
   group('Consultas del hato', () {
     setUp(() async {
-      await db.guardarAnimal(
-          animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101', fase: 'ENGORDE'));
+      await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101',
+          fase: 'engorde', categoria: 'vaca', sexo: 'H'));
       await db.guardarAnimal(animal('01BBBBBBBBBBBBBBBBBBBBBBBB', 'A-102',
-          fase: 'CRIANZA', nombre: 'Manchado'));
-      await db.guardarAnimal(
-          animal('01CCCCCCCCCCCCCCCCCCCCCCCC', 'B-201', fase: 'ENGORDE'));
+          fase: 'crianza'));
+      await db.guardarAnimal(animal('01CCCCCCCCCCCCCCCCCCCCCCCC', 'B-201',
+          fase: 'engorde', categoria: 'novillo'));
     });
 
     test('devuelve el hato ordenado por caravana', () async {
@@ -100,19 +103,14 @@ void main() {
       expect(lista.map((a) => a.caravana), ['A-101', 'A-102', 'B-201']);
     });
 
-    test('filtra por fase productiva', () async {
-      final engorde = await db.observarAnimales(fase: 'ENGORDE').first;
+    test('filtra por fase de manejo', () async {
+      final engorde = await db.observarAnimales(fase: 'engorde').first;
       expect(engorde, hasLength(2));
     });
 
-    test('busca por caravana', () async {
+    test('busca por número de caravana', () async {
       final resultado = await db.observarAnimales(busqueda: 'B-2').first;
       expect(resultado.single.caravana, 'B-201');
-    });
-
-    test('busca por nombre', () async {
-      final resultado = await db.observarAnimales(busqueda: 'Manch').first;
-      expect(resultado.single.caravana, 'A-102');
     });
   });
 
@@ -127,26 +125,55 @@ void main() {
       expect(pendientes.single.caravana, 'A-102');
     });
 
-    test('guarda y recupera la marca temporal de sincronización', () async {
-      final momento = DateTime.utc(2026, 9, 29, 12, 30);
-      await db.registrarSync('animales', momento);
+    test('un conflicto deja de reintentarse en cada pasada', () async {
+      await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
+      await db.marcarConflicto('01AAAAAAAAAAAAAAAAAAAAAAAA');
 
-      // Drift persiste la fecha como timestamp Unix, de modo que vuelve en
-      // hora local. Lo que debe conservarse es el instante, no la zona: la
-      // sincronización convierte a UTC antes de enviarla al servidor.
-      final recuperado = await db.ultimaSync('animales');
-      expect(recuperado!.isAtSameMomentAs(momento), isTrue);
-      expect(await db.ultimaSync('salud'), isNull);
+      final enBase = await db.obtenerAnimal('01AAAAAAAAAAAAAAAAAAAAAAAA');
+
+      expect(enBase!.estadoSync, 'conflicto');
+      expect(await db.animalesPendientes(), isEmpty);
     });
 
-    test('cerrar sesión vacía los datos del predio', () async {
+    test('guarda y recupera el cursor de sincronización', () async {
+      final momento = DateTime.utc(2026, 9, 29, 12, 30);
+      await db.registrarSync('animal', momento);
+
+      // Drift persiste la fecha como marca de tiempo Unix, de modo que vuelve
+      // en hora local. Lo que debe conservarse es el instante, no la zona: la
+      // consulta de cambios convierte a UTC antes de enviarla al servidor.
+      final recuperado = await db.ultimaSync('animal');
+      expect(recuperado!.isAtSameMomentAs(momento), isTrue);
+      expect(await db.ultimaSync('evento_sanitario'), isNull);
+    });
+
+    test('cerrar sesión vacía los datos del establecimiento', () async {
       await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
-      await db.registrarSync('animales', DateTime.utc(2026, 9, 29));
+      await db.registrarSync('animal', DateTime.utc(2026, 9, 29));
 
       await db.limpiar();
 
       expect(await db.select(db.animales).get(), isEmpty);
-      expect(await db.ultimaSync('animales'), isNull);
+      expect(await db.ultimaSync('animal'), isNull);
+    });
+  });
+
+  group('Potreros', () {
+    test('un animal puede quedar sin potrero asignado', () async {
+      await db.guardarPotreros([
+        PotrerosCompanion.insert(
+          idPotrero: '01POTREROPOTREROPOTREROPOT',
+          nombre: 'Potrero Norte',
+          superficieHa: const Value(120.5),
+        ),
+      ]);
+      await db.guardarAnimal(animal('01AAAAAAAAAAAAAAAAAAAAAAAA', 'A-101'));
+
+      final potreros = await db.observarPotreros().first;
+      final guardado = await db.obtenerAnimal('01AAAAAAAAAAAAAAAAAAAAAAAA');
+
+      expect(potreros.single.nombre, 'Potrero Norte');
+      expect(guardado!.idPotrero, isNull);
     });
   });
 }

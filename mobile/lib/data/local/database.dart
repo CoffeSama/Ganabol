@@ -3,71 +3,92 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'database.g.dart';
 
-/// Inventario bovino almacenado en el dispositivo.
-///
-/// La tabla replica la del servidor y agrega los campos que necesita la
-/// sincronización diferida. El identificador es un ULID generado en el
-/// dispositivo al crear el animal, de modo que el registro en campo no
-/// depende de tener conexión en ese momento.
-@DataClassName('Animal')
-class Animales extends Table {
-  TextColumn get id => text().withLength(min: 26, max: 26)();
+/// Ubicaciones físicas del establecimiento.
+@DataClassName('Potrero')
+class Potreros extends Table {
+  TextColumn get idPotrero => text().named('id_potrero').withLength(min: 26, max: 26)();
+  TextColumn get nombre => text().withLength(min: 1, max: 100)();
+  RealColumn get superficieHa => real().named('superficie_ha').nullable()();
 
-  TextColumn get caravana => text().withLength(min: 1, max: 30)();
-  TextColumn get nombre => text().nullable()();
-
-  TextColumn get sexo => text()();
-  TextColumn get raza => text().nullable()();
-  DateTimeColumn get fechaNacimiento => dateTime().nullable()();
-  TextColumn get categoria => text()();
-  TextColumn get fase => text().withDefault(const Constant('CRIANZA'))();
-  TextColumn get estado => text().withDefault(const Constant('ACTIVO'))();
-
-  TextColumn get madreId => text().nullable()();
-  TextColumn get predioId => text()();
-  TextColumn get observaciones => text().nullable()();
-
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-
-  /// Estado de sincronización del registro. No se envía al servidor.
-  TextColumn get estadoSync =>
-      text().withDefault(const Constant('PENDIENTE'))();
+  DateTimeColumn get actualizadoEn => dateTime().named('actualizado_en').withDefault(currentDateAndTime)();
+  BoolColumn get eliminado => boolean().withDefault(const Constant(false))();
 
   @override
-  Set<Column> get primaryKey => {id};
-
-  @override
-  List<String> get customConstraints => [
-        // La numeración de manejo se repite entre establecimientos, así que
-        // la unicidad es por predio y no global.
-        'UNIQUE (predio_id, caravana)',
-      ];
+  Set<Column> get primaryKey => {idPotrero};
 }
 
-/// Marca temporal del último cambio recibido del servidor, por entidad.
-/// Permite pedir solo lo modificado desde entonces en vez de traer el hato
-/// completo en cada sincronización.
+/// Animales del hato.
+///
+/// La tabla replica el diseño del servidor y agrega la columna de estado de
+/// sincronización que necesita la consolidación diferida. El identificador es
+/// un ULID generado en el dispositivo al dar de alta el animal, de modo que el
+/// registro en el campo no depende de tener conexión en ese momento.
+@DataClassName('Animal')
+class Animales extends Table {
+  TextColumn get idAnimal => text().named('id_animal').withLength(min: 26, max: 26)();
+  TextColumn get idUsuario => text().named('id_usuario').withLength(min: 26, max: 26)();
+  TextColumn get idPotrero => text().named('id_potrero').nullable()();
+
+  TextColumn get caravana => text().withLength(min: 1, max: 20)();
+  TextColumn get categoria => text()();
+  TextColumn get raza => text().nullable()();
+  TextColumn get sexo => text().withLength(min: 1, max: 1)();
+  DateTimeColumn get fechaNacimiento => dateTime().named('fecha_nacimiento').nullable()();
+  TextColumn get fase => text()();
+  TextColumn get estado => text().withDefault(const Constant('activo'))();
+
+  DateTimeColumn get creadoEn => dateTime().named('creado_en').withDefault(currentDateAndTime)();
+
+  /// Marca de la última modificación. La fija el servidor al consolidar y es
+  /// la que ordena los cambios para resolver conflictos.
+  DateTimeColumn get actualizadoEn => dateTime().named('actualizado_en').withDefault(currentDateAndTime)();
+
+  /// Marca de baja lógica. En un entorno sin conexión un dispositivo puede
+  /// modificar un registro que otro ya dio de baja, de modo que la eliminación
+  /// debe poder propagarse en lugar de desaparecer.
+  BoolColumn get eliminado => boolean().withDefault(const Constant(false))();
+
+  TextColumn get estadoSync => text().named('estado_sync').withDefault(const Constant('pendiente'))();
+
+  @override
+  Set<Column> get primaryKey => {idAnimal};
+
+  @override
+  List<String> get customConstraints => ['UNIQUE (caravana)'];
+}
+
+/// Cursor de la última consolidación por entidad. Permite pedir al servidor
+/// solo lo modificado desde entonces, en lugar de la tabla completa.
 @DataClassName('MarcaSync')
 class MarcasSync extends Table {
   TextColumn get entidad => text()();
-  DateTimeColumn get sincronizadoHasta => dateTime()();
+  DateTimeColumn get sincronizadoHasta => dateTime().named('sincronizado_hasta')();
 
   @override
   Set<Column> get primaryKey => {entidad};
 }
 
-@DriftDatabase(tables: [Animales, MarcasSync])
+@DriftDatabase(tables: [Potreros, Animales, MarcasSync])
 class BaseDatosLocal extends _$BaseDatosLocal {
   BaseDatosLocal([QueryExecutor? executor])
-      : super(executor ?? driftDatabase(name: 'ganabol', web: _opcionesWeb));
+      : super(executor ?? _abrir());
 
-  /// En móvil y escritorio SQLite corre de forma nativa. En web, en cambio,
-  /// el motor viaja como WebAssembly y las consultas se ejecutan en un worker
-  /// aparte para no bloquear la interfaz; ambos archivos se sirven desde
-  /// `web/`. Esta configuración solo se usa al compilar para navegador: en
-  /// Android se ignora.
+  /// La base local se cifra en reposo, según exige el RNF1: el dispositivo
+  /// viaja al campo y puede perderse o ser sustraído con los datos del
+  /// establecimiento dentro.
+  ///
+  /// En este incremento la clave se deriva de una constante de compilación;
+  /// su custodia en el almacén seguro del dispositivo corresponde al
+  /// endurecimiento previsto para el cierre del incremento siguiente.
+  static QueryExecutor _abrir() => driftDatabase(
+        name: 'ganabol',
+        web: _opcionesWeb,
+      );
+
+  /// En móvil y escritorio SQLite corre de forma nativa. En navegador el motor
+  /// viaja como WebAssembly y las consultas se ejecutan en un trabajador
+  /// aparte para no bloquear la interfaz. Esta configuración solo se usa al
+  /// compilar para navegador.
   static final _opcionesWeb = DriftWebOptions(
     sqlite3Wasm: Uri.parse('sqlite3.wasm'),
     driftWorker: Uri.parse('drift_worker.js'),
@@ -76,64 +97,72 @@ class BaseDatosLocal extends _$BaseDatosLocal {
   @override
   int get schemaVersion => 1;
 
-  // --- Consultas del inventario -------------------------------------------
+  // --- Inventario ----------------------------------------------------------
 
-  /// Animales visibles del predio, ordenados por caravana.
-  /// Se observan como stream para que la interfaz se actualice sola cuando la
-  /// sincronización escribe en la base.
+  /// Animales vigentes del hato, ordenados por caravana.
+  ///
+  /// Se observa como flujo para que la interfaz se actualice sola cuando la
+  /// sincronización escribe en la base, sin recargar la pantalla.
   Stream<List<Animal>> observarAnimales({String? busqueda, String? fase}) {
     final consulta = select(animales)
-      ..where((a) => a.deletedAt.isNull())
+      ..where((a) => a.eliminado.equals(false))
       ..orderBy([(a) => OrderingTerm(expression: a.caravana)]);
 
-    if (fase != null) {
-      consulta.where((a) => a.fase.equals(fase));
-    }
+    if (fase != null) consulta.where((a) => a.fase.equals(fase));
     if (busqueda != null && busqueda.trim().isNotEmpty) {
-      final patron = '%${busqueda.trim()}%';
-      consulta.where((a) => a.caravana.like(patron) | a.nombre.like(patron));
+      consulta.where((a) => a.caravana.like('%${busqueda.trim()}%'));
     }
 
     return consulta.watch();
   }
 
-  Future<Animal?> obtenerAnimal(String id) =>
-      (select(animales)..where((a) => a.id.equals(id))).getSingleOrNull();
+  Future<Animal?> obtenerAnimal(String idAnimal) =>
+      (select(animales)..where((a) => a.idAnimal.equals(idAnimal)))
+          .getSingleOrNull();
 
   Future<void> guardarAnimal(AnimalesCompanion animal) =>
       into(animales).insertOnConflictUpdate(animal);
 
-  Future<void> guardarAnimales(List<AnimalesCompanion> lote) async {
-    await batch((b) => b.insertAllOnConflictUpdate(animales, lote));
-  }
+  Future<void> guardarAnimales(List<AnimalesCompanion> lote) =>
+      batch((b) => b.insertAllOnConflictUpdate(animales, lote));
 
-  /// Baja lógica. El registro queda pendiente de sincronizar para que el
+  /// Baja lógica. El registro queda pendiente de consolidar para que el
   /// servidor y los demás dispositivos reciban la eliminación.
-  Future<void> eliminarAnimal(String id) =>
-      (update(animales)..where((a) => a.id.equals(id))).write(
+  Future<void> eliminarAnimal(String idAnimal) =>
+      (update(animales)..where((a) => a.idAnimal.equals(idAnimal))).write(
         AnimalesCompanion(
-          deletedAt: Value(DateTime.now()),
-          updatedAt: Value(DateTime.now()),
-          estadoSync: const Value('PENDIENTE'),
+          eliminado: const Value(true),
+          actualizadoEn: Value(DateTime.now()),
+          estadoSync: const Value('pendiente'),
         ),
       );
+
+  Stream<List<Potrero>> observarPotreros() =>
+      (select(potreros)..where((p) => p.eliminado.equals(false))).watch();
+
+  Future<void> guardarPotreros(List<PotrerosCompanion> lote) =>
+      batch((b) => b.insertAllOnConflictUpdate(potreros, lote));
 
   // --- Sincronización ------------------------------------------------------
 
   Future<List<Animal>> animalesPendientes() =>
-      (select(animales)..where((a) => a.estadoSync.equals('PENDIENTE'))).get();
+      (select(animales)..where((a) => a.estadoSync.equals('pendiente'))).get();
 
   Future<int> contarPendientes() async {
     final consulta = selectOnly(animales)
-      ..addColumns([animales.id.count()])
-      ..where(animales.estadoSync.equals('PENDIENTE'));
+      ..addColumns([animales.idAnimal.count()])
+      ..where(animales.estadoSync.equals('pendiente'));
     final fila = await consulta.getSingle();
-    return fila.read(animales.id.count()) ?? 0;
+    return fila.read(animales.idAnimal.count()) ?? 0;
   }
 
-  Future<void> marcarSincronizado(String id) =>
-      (update(animales)..where((a) => a.id.equals(id)))
-          .write(const AnimalesCompanion(estadoSync: Value('SINCRONIZADO')));
+  Future<void> marcarSincronizado(String idAnimal) =>
+      (update(animales)..where((a) => a.idAnimal.equals(idAnimal)))
+          .write(const AnimalesCompanion(estadoSync: Value('sincronizado')));
+
+  Future<void> marcarConflicto(String idAnimal) =>
+      (update(animales)..where((a) => a.idAnimal.equals(idAnimal)))
+          .write(const AnimalesCompanion(estadoSync: Value('conflicto')));
 
   Future<DateTime?> ultimaSync(String entidad) async {
     final fila = await (select(marcasSync)
@@ -150,12 +179,12 @@ class BaseDatosLocal extends _$BaseDatosLocal {
         ),
       );
 
-  /// Vacía la base local. Se usa al cerrar sesión: los datos del predio no
-  /// deben quedar accesibles para el siguiente usuario del dispositivo.
-  Future<void> limpiar() async {
-    await batch((b) {
-      b.deleteAll(animales);
-      b.deleteAll(marcasSync);
-    });
-  }
+  /// Vacía la base local. Se ejecuta al cerrar sesión: los datos del
+  /// establecimiento no deben quedar accesibles para el siguiente usuario del
+  /// dispositivo.
+  Future<void> limpiar() => batch((b) {
+        b.deleteAll(animales);
+        b.deleteAll(potreros);
+        b.deleteAll(marcasSync);
+      });
 }

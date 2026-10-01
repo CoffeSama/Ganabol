@@ -4,10 +4,7 @@ import { IsString } from 'class-validator';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import {
-  UsuarioActual,
-  UsuarioAutenticado,
-} from './decorators/usuario-actual.decorator';
+import { UsuarioActual, UsuarioAutenticado } from './decorators/usuario-actual.decorator';
 
 class RefrescarDto {
   @IsString()
@@ -26,7 +23,7 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @ApiOperation({ summary: 'Renovar el access token' })
+  @ApiOperation({ summary: 'Renovar el token de acceso' })
   refrescar(@Body() dto: RefrescarDto) {
     return this.authService.refrescar(dto.refreshToken);
   }

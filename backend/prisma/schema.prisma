@@ -1,10 +1,16 @@
-// GanaBol — Esquema de base de datos
+// GanaBol — Esquema de base de datos del servidor
+//
 // Sistema móvil de gestión ganadera para explotaciones bovinas tradicionales
 // del departamento de Santa Cruz, Bolivia.
 //
-// Incremento 1: Identidad, accesos e inventario bovino.
-// Las entidades de sanidad, pesaje y comercialización corresponden a
-// incrementos posteriores y no se implementan en esta versión.
+// El esquema reproduce el diseño del documento «05 - Diagrama de base de
+// datos», conservando sus nombres de tabla y de columna, sus restricciones de
+// dominio y sus reglas de integridad referencial.
+//
+// Alcance implementado: Incremento 1 (identidad, accesos y sincronización) y
+// el inventario bovino del Incremento 2. Las entidades de pesaje, sanidad,
+// comercialización, reproducción y evaluación están diseñadas en el documento
+// citado y corresponden a incrementos posteriores.
 
 generator client {
   provider = "prisma-client-js"
@@ -16,147 +22,139 @@ datasource db {
 }
 
 // ---------------------------------------------------------------------------
-// Enumeraciones del dominio ganadero
+// Dominios categóricos
+//
+// El diseño los define como restricciones CHECK sobre columnas de texto. Aquí
+// se expresan como enumeraciones, que Prisma traduce a tipos enumerados de
+// PostgreSQL: la restricción es la misma y queda verificada además en tiempo
+// de compilación.
 // ---------------------------------------------------------------------------
 
-/// Roles de acceso al sistema (RBAC).
 enum Rol {
-  ADMINISTRADOR
-  PROPIETARIO
-  PERSONAL_CAMPO
-  VETERINARIO
+  administrador
+  personal_campo
+  veterinario
+  propietario
 }
 
 enum Sexo {
-  MACHO
-  HEMBRA
+  M
+  H
 }
 
-/// Categoría zootécnica del animal. Se deriva de sexo y edad, pero se
-/// almacena de forma explícita porque el productor la asigna en campo y no
-/// siempre coincide con el cálculo automático (p. ej. destete tardío).
 enum CategoriaAnimal {
-  TERNERO
-  TERNERA
-  NOVILLO
-  VAQUILLA
-  TORO
-  VACA
-  BUEY
+  ternero
+  vaquillona
+  novillo
+  vaca
+  toro
 }
 
-/// Fase productiva dentro del ciclo de crianza–destete–engorde.
-enum FaseProductiva {
-  CRIANZA
-  DESTETE
-  ENGORDE
+enum FaseManejo {
+  crianza
+  destete
+  engorde
 }
 
-/// Estado del animal dentro del hato.
 enum EstadoAnimal {
-  ACTIVO
-  VENDIDO
-  MUERTO
-  EXTRAVIADO
+  activo
+  vendido
+  baja
+}
+
+enum OperacionSync {
+  alta
+  modificacion
+  baja
+}
+
+enum EstadoSync {
+  pendiente
+  sincronizado
+  conflicto
 }
 
 // ---------------------------------------------------------------------------
-// Entidades
+// Tablas
 // ---------------------------------------------------------------------------
 
-/// Unidad productiva (establecimiento ganadero). Agrupa los animales y
-/// delimita el alcance de los permisos de cada usuario.
-model Predio {
-  id           String   @id @db.VarChar(26)
-  nombre       String   @db.VarChar(120)
-  ubicacion    String?  @db.VarChar(200)
-  superficieHa Decimal? @map("superficie_ha") @db.Decimal(10, 2)
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  usuarios Usuario[]
-  animales Animal[]
-
-  @@index([deletedAt])
-  @@map("predio")
-}
-
-/// Usuario del sistema. La contraseña se almacena únicamente como hash
-/// bcrypt; el sistema nunca persiste la credencial en claro.
+/// Personas que acceden al sistema.
 model Usuario {
-  id           String  @id @db.VarChar(26)
-  email        String  @unique @db.VarChar(160)
-  passwordHash String  @map("password_hash") @db.VarChar(72)
+  idUsuario    String  @id @map("id_usuario") @db.Char(26)
   nombre       String  @db.VarChar(120)
-  rol          Rol     @default(PERSONAL_CAMPO)
+  email        String  @unique @db.VarChar(120)
+  passwordHash String  @map("password_hash") @db.VarChar(255)
+  rol          Rol     @default(personal_campo)
   activo       Boolean @default(true)
 
-  /// Predio al que pertenece el usuario. El ADMINISTRADOR puede no tener
-  /// predio asignado (acceso transversal).
-  predioId String? @map("predio_id") @db.VarChar(26)
-  predio   Predio? @relation(fields: [predioId], references: [id], onDelete: SetNull)
+  ultimoAccesoEn DateTime? @map("ultimo_acceso_en") @db.Timestamptz()
+  creadoEn       DateTime  @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn  DateTime  @updatedAt @map("actualizado_en") @db.Timestamptz()
 
-  ultimoAccesoAt DateTime? @map("ultimo_acceso_at")
+  animales Animal[]
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  animalesRegistrados Animal[] @relation("AnimalRegistradoPor")
-
-  @@index([predioId])
-  @@index([deletedAt])
   @@map("usuario")
 }
 
-/// Animal del hato, con identificación individual.
+/// Ubicaciones físicas del establecimiento.
+model Potrero {
+  idPotrero    String   @id @map("id_potrero") @db.Char(26)
+  nombre       String   @db.VarChar(100)
+  superficieHa Decimal? @map("superficie_ha") @db.Decimal(8, 2)
+
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
+
+  animales Animal[]
+
+  @@index([eliminado])
+  @@map("potrero")
+}
+
+/// Animales del hato.
 ///
-/// Decisiones de diseño relevantes para el funcionamiento offline-first:
-///
-/// - El identificador primario es un ULID generado en el dispositivo, no un
-///   autoincremental del servidor. Esto permite crear animales sin conexión
-///   sin riesgo de colisión al sincronizar.
-/// - `updatedAt` actúa como reloj lógico para la resolución de conflictos
-///   por última escritura (LWW) sobre los campos descriptivos.
-/// - El borrado es lógico (`deletedAt`): la sincronización necesita propagar
-///   la baja a los dispositivos, cosa que un DELETE físico no permite.
+/// El identificador es un ULID generado en el dispositivo, lo que permite dar
+/// de alta un animal sin conexión y consolidarlo después sin coordinar con el
+/// servidor. La marca `actualizadoEn` la fija el servidor y ordena los cambios
+/// para la resolución de conflictos; `eliminado` es la marca de baja que
+/// propaga la eliminación a los demás dispositivos.
 model Animal {
-  id String @id @db.VarChar(26)
+  idAnimal String @id @map("id_animal") @db.Char(26)
 
-  /// Identificador visible del animal (caravana / número de manejo).
-  /// Único dentro del predio, no a nivel global.
-  caravana String  @db.VarChar(30)
-  nombre   String? @db.VarChar(80)
+  idUsuario String  @map("id_usuario") @db.Char(26)
+  usuario   Usuario @relation(fields: [idUsuario], references: [idUsuario], onDelete: Restrict)
 
-  sexo            Sexo
-  raza            String?         @db.VarChar(60)
-  fechaNacimiento DateTime?       @map("fecha_nacimiento") @db.Date
+  idPotrero String?  @map("id_potrero") @db.Char(26)
+  potrero   Potrero? @relation(fields: [idPotrero], references: [idPotrero], onDelete: SetNull)
+
+  caravana        String          @unique @db.VarChar(20)
   categoria       CategoriaAnimal
-  fase            FaseProductiva  @default(CRIANZA)
-  estado          EstadoAnimal    @default(ACTIVO)
+  raza            String?         @db.VarChar(40)
+  sexo            Sexo
+  fechaNacimiento DateTime?       @map("fecha_nacimiento") @db.Date
+  fase            FaseManejo
+  estado          EstadoAnimal    @default(activo)
 
-  /// Filiación materna, para trazabilidad del hato.
-  madreId String? @map("madre_id") @db.VarChar(26)
-  madre   Animal? @relation("Filiacion", fields: [madreId], references: [id], onDelete: SetNull)
-  crias   Animal[] @relation("Filiacion")
+  creadoEn      DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
 
-  predioId String @map("predio_id") @db.VarChar(26)
-  predio   Predio @relation(fields: [predioId], references: [id], onDelete: Cascade)
-
-  registradoPorId String?  @map("registrado_por_id") @db.VarChar(26)
-  registradoPor   Usuario? @relation("AnimalRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
-
-  observaciones String? @db.VarChar(500)
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-
-  @@unique([predioId, caravana], name: "caravana_unica_por_predio")
-  @@index([predioId, estado])
-  @@index([updatedAt])
-  @@index([deletedAt])
+  @@index([estado, eliminado])
+  @@index([actualizadoEn])
+  @@index([idPotrero])
   @@map("animal")
+}
+
+/// Control del estado de sincronización de cada entidad operativa.
+model RegistroSync {
+  idRegistro  String        @id @map("id_registro") @db.Char(26)
+  entidad     String        @db.VarChar(30)
+  idEntidad   String        @map("id_entidad") @db.Char(26)
+  operacion   OperacionSync
+  estado      EstadoSync    @default(pendiente)
+  marcaTiempo DateTime      @map("marca_tiempo") @db.Timestamptz()
+
+  @@index([entidad, estado])
+  @@index([marcaTiempo])
+  @@map("registro_sync")
 }

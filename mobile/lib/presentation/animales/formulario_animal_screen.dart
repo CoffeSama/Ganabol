@@ -32,7 +32,7 @@ class _FormularioAnimalScreenState
 
   Sexo _sexo = Sexo.macho;
   CategoriaAnimal _categoria = CategoriaAnimal.ternero;
-  FaseProductiva _fase = FaseProductiva.crianza;
+  FaseManejo _fase = FaseManejo.crianza;
   EstadoAnimal _estado = EstadoAnimal.activo;
   DateTime? _fechaNacimiento;
 
@@ -66,12 +66,10 @@ class _FormularioAnimalScreenState
     if (animal == null) return;
 
     _caravana.text = animal.caravana;
-    _nombre.text = animal.nombre ?? '';
     _raza.text = animal.raza ?? '';
-    _observaciones.text = animal.observaciones ?? '';
     _sexo = Sexo.desde(animal.sexo);
     _categoria = CategoriaAnimal.desde(animal.categoria);
-    _fase = FaseProductiva.desde(animal.fase);
+    _fase = FaseManejo.desde(animal.fase);
     _estado = EstadoAnimal.desde(animal.estado);
     _fechaNacimiento = animal.fechaNacimiento;
     _cargado = true;
@@ -94,13 +92,8 @@ class _FormularioAnimalScreenState
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final predioId = ref.read(sesionProvider).usuario?.predioId;
-    if (predioId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tu usuario no tiene un predio asignado')),
-      );
-      return;
-    }
+    final idUsuario = ref.read(sesionProvider).usuario?.idUsuario;
+    if (idUsuario == null) return;
 
     setState(() => _guardando = true);
     final repo = ref.read(animalesRepositoryProvider);
@@ -110,30 +103,22 @@ class _FormularioAnimalScreenState
         await repo.actualizar(
           widget.animalId!,
           caravana: _caravana.text.trim(),
-          nombre: _nombre.text.trim().isEmpty ? null : _nombre.text.trim(),
           sexo: _sexo,
           raza: _raza.text.trim().isEmpty ? null : _raza.text.trim(),
           fechaNacimiento: _fechaNacimiento,
           categoria: _categoria,
           fase: _fase,
           estado: _estado,
-          observaciones: _observaciones.text.trim().isEmpty
-              ? null
-              : _observaciones.text.trim(),
         );
       } else {
         await repo.registrar(
           caravana: _caravana.text.trim(),
           sexo: _sexo,
           categoria: _categoria,
-          predioId: predioId,
-          nombre: _nombre.text.trim().isEmpty ? null : _nombre.text.trim(),
+          idUsuario: idUsuario,
           raza: _raza.text.trim().isEmpty ? null : _raza.text.trim(),
           fechaNacimiento: _fechaNacimiento,
           fase: _fase,
-          observaciones: _observaciones.text.trim().isEmpty
-              ? null
-              : _observaciones.text.trim(),
         );
       }
 
@@ -219,14 +204,14 @@ class _FormularioAnimalScreenState
               onChanged: (v) => setState(() => _categoria = v!),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<FaseProductiva>(
+            DropdownButtonFormField<FaseManejo>(
               initialValue: _fase,
               decoration: const InputDecoration(
                 labelText: 'Fase productiva',
                 prefixIcon: Icon(Icons.timeline),
               ),
               items: [
-                for (final f in FaseProductiva.values)
+                for (final f in FaseManejo.values)
                   DropdownMenuItem(value: f, child: Text(f.etiqueta)),
               ],
               onChanged: (v) => setState(() => _fase = v!),

@@ -1,7 +1,7 @@
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { EstadoAnimal, FaseProductiva } from '@prisma/client';
+import { EstadoAnimal, FaseManejo } from '@prisma/client';
 
 export class ConsultarAnimalesDto {
   @ApiPropertyOptional({ enum: EstadoAnimal })
@@ -9,28 +9,26 @@ export class ConsultarAnimalesDto {
   @IsEnum(EstadoAnimal)
   estado?: EstadoAnimal;
 
-  @ApiPropertyOptional({ enum: FaseProductiva })
+  @ApiPropertyOptional({ enum: FaseManejo })
   @IsOptional()
-  @IsEnum(FaseProductiva)
-  fase?: FaseProductiva;
+  @IsEnum(FaseManejo)
+  fase?: FaseManejo;
 
-  @ApiPropertyOptional({ description: 'Busca por caravana o nombre' })
+  @ApiPropertyOptional({ description: 'Filtra por potrero' })
+  @IsOptional()
+  @Matches(/^[0-9A-HJKMNP-TV-Z]{26}$/)
+  idPotrero?: string;
+
+  @ApiPropertyOptional({ description: 'Busca por número de caravana' })
   @IsOptional()
   @IsString()
   buscar?: string;
 
   @ApiPropertyOptional({ default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1)
   pagina?: number = 1;
 
   @ApiPropertyOptional({ default: 50, maximum: 200 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(200)
+  @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(200)
   limite?: number = 50;
 }

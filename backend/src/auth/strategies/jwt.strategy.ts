@@ -20,12 +20,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  /// Se revalida el usuario contra la base en cada petición: un usuario dado
+  /// Se revalida el usuario contra la base en cada petición: una cuenta dada
   /// de baja no debe seguir operando con un token aún vigente.
   async validate(payload: JwtPayload): Promise<UsuarioAutenticado> {
     const usuario = await this.prisma.usuario.findFirst({
-      where: { id: payload.sub, activo: true, deletedAt: null },
-      select: { id: true, email: true, rol: true, predioId: true },
+      where: { idUsuario: payload.sub, activo: true },
+      select: { idUsuario: true, email: true, rol: true },
     });
 
     if (!usuario) throw new UnauthorizedException('Usuario no habilitado');

@@ -93,11 +93,11 @@ class FiltrosAnimales {
   const FiltrosAnimales({this.busqueda, this.fase});
 
   final String? busqueda;
-  final FaseProductiva? fase;
+  final FaseManejo? fase;
 
   FiltrosAnimales copiarCon({
     String? busqueda,
-    FaseProductiva? fase,
+    FaseManejo? fase,
     bool limpiarFase = false,
   }) =>
       FiltrosAnimales(
@@ -108,6 +108,10 @@ class FiltrosAnimales {
 
 final filtrosProvider =
     StateProvider<FiltrosAnimales>((ref) => const FiltrosAnimales());
+
+final potrerosProvider = StreamProvider<List<Potrero>>(
+  (ref) => ref.watch(animalesRepositoryProvider).observarPotreros(),
+);
 
 final animalesProvider = StreamProvider<List<Animal>>((ref) {
   final filtros = ref.watch(filtrosProvider);

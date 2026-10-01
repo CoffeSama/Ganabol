@@ -17,14 +17,17 @@ docs/       Documentación técnica y evidencias de pruebas
 
 ## Estado
 
-**Incremento 1 — Identidad, accesos e inventario bovino.** Implementado:
-autenticación JWT con refresh de larga duración, control de acceso por roles
-(RBAC), y registro, consulta, actualización y baja de animales con
-identificación individual. Incluye el endpoint de cambios que alimenta la
-sincronización diferida del cliente móvil.
+Implementado el **Incremento 1** del perfil de proyecto —identidad, accesos y
+motor de sincronización— y el **inventario bovino del Incremento 2**:
+autenticación con argon2id y token de actualización de larga duración, control
+de acceso por rol, y alta, consulta, modificación y baja de animales con
+identificación individual, potrero y bitácora de sincronización.
 
-Incrementos posteriores (sanidad, estimación de peso, selección para venta y
-panel web) están planificados y documentados, pero no implementados.
+El esquema reproduce el diseño del documento «05 - Diagrama de base de datos»:
+nombres de tabla y de columna, dominios categóricos, integridad referencial y
+marcas de baja lógica. Las entidades de pesaje, sanidad, comercialización,
+reproducción y evaluación están diseñadas en ese documento y corresponden a
+incrementos posteriores.
 
 ## Puesta en marcha del backend
 
@@ -47,10 +50,10 @@ Todos con contraseña `Ganabol2026`:
 
 | Correo | Rol |
 |--------|-----|
-| admin@ganabol.bo | Administrador |
-| propietario@ganabol.bo | Propietario |
-| campo@ganabol.bo | Personal de campo |
-| veterinario@ganabol.bo | Veterinario |
+| admin@ganabol.bo | administrador |
+| propietario@ganabol.bo | propietario |
+| campo@ganabol.bo | personal_campo |
+| veterinario@ganabol.bo | veterinario |
 
 ## Puesta en marcha de la aplicación móvil
 
@@ -93,9 +96,10 @@ el reenvío de un registro tras una respuesta perdida sea idempotente.
 propagar la eliminación a los dispositivos; un `DELETE` no deja rastro que
 transmitir.
 
-**Unicidad de caravana por predio.** La numeración de manejo se repite entre
-establecimientos distintos, de modo que la restricción global sería incorrecta
-para el dominio.
+**Contraseñas con argon2id.** Lo exige el RNF1 de la especificación. A
+diferencia de las funciones de resumen clásicas, argon2id impone un costo de
+memoria además del de cómputo, lo que encarece los ataques por hardware
+dedicado.
 
 **La interfaz lee y escribe siempre contra la base local.** Ninguna pantalla
 espera a la red: las consultas son streams sobre SQLite y la sincronización

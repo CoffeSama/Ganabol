@@ -1,13 +1,14 @@
 /// Modelos del dominio ganadero.
 ///
-/// Las enumeraciones replican las del servidor. Se almacena el nombre en
-/// texto (no el índice) para que un cambio de orden en el código no altere
+/// Las enumeraciones replican los dominios categóricos del documento
+/// «05 - Diagrama de base de datos». Se almacena el valor en texto, tal como
+/// lo define el esquema, de modo que un cambio de orden en el código no altere
 /// el significado de los datos ya guardados en el dispositivo.
 library;
 
 enum Sexo {
-  macho('MACHO', 'Macho'),
-  hembra('HEMBRA', 'Hembra');
+  macho('M', 'Macho'),
+  hembra('H', 'Hembra');
 
   const Sexo(this.valor, this.etiqueta);
   final String valor;
@@ -18,13 +19,11 @@ enum Sexo {
 }
 
 enum CategoriaAnimal {
-  ternero('TERNERO', 'Ternero'),
-  ternera('TERNERA', 'Ternera'),
-  novillo('NOVILLO', 'Novillo'),
-  vaquilla('VAQUILLA', 'Vaquilla'),
-  toro('TORO', 'Toro'),
-  vaca('VACA', 'Vaca'),
-  buey('BUEY', 'Buey');
+  ternero('ternero', 'Ternero'),
+  vaquillona('vaquillona', 'Vaquillona'),
+  novillo('novillo', 'Novillo'),
+  vaca('vaca', 'Vaca'),
+  toro('toro', 'Toro');
 
   const CategoriaAnimal(this.valor, this.etiqueta);
   final String valor;
@@ -33,31 +32,30 @@ enum CategoriaAnimal {
   static CategoriaAnimal desde(String v) => CategoriaAnimal.values
       .firstWhere((e) => e.valor == v, orElse: () => CategoriaAnimal.ternero);
 
-  /// Categorías coherentes con el sexo del animal, para no ofrecer
-  /// combinaciones imposibles en el formulario de registro.
+  /// Categorías coherentes con el sexo del animal, para no ofrecer en el
+  /// formulario combinaciones que el dominio no admite.
   static List<CategoriaAnimal> segunSexo(Sexo sexo) => sexo == Sexo.macho
-      ? [ternero, novillo, toro, buey]
-      : [ternera, vaquilla, vaca];
+      ? const [ternero, novillo, toro]
+      : const [ternero, vaquillona, vaca];
 }
 
-enum FaseProductiva {
-  crianza('CRIANZA', 'Crianza'),
-  destete('DESTETE', 'Destete'),
-  engorde('ENGORDE', 'Engorde');
+enum FaseManejo {
+  crianza('crianza', 'Crianza'),
+  destete('destete', 'Destete'),
+  engorde('engorde', 'Engorde');
 
-  const FaseProductiva(this.valor, this.etiqueta);
+  const FaseManejo(this.valor, this.etiqueta);
   final String valor;
   final String etiqueta;
 
-  static FaseProductiva desde(String v) => FaseProductiva.values
-      .firstWhere((e) => e.valor == v, orElse: () => FaseProductiva.crianza);
+  static FaseManejo desde(String v) => FaseManejo.values
+      .firstWhere((e) => e.valor == v, orElse: () => FaseManejo.crianza);
 }
 
 enum EstadoAnimal {
-  activo('ACTIVO', 'Activo'),
-  vendido('VENDIDO', 'Vendido'),
-  muerto('MUERTO', 'Muerto'),
-  extraviado('EXTRAVIADO', 'Extraviado');
+  activo('activo', 'Activo'),
+  vendido('vendido', 'Vendido'),
+  baja('baja', 'Baja');
 
   const EstadoAnimal(this.valor, this.etiqueta);
   final String valor;
@@ -69,16 +67,18 @@ enum EstadoAnimal {
 
 /// Estado de sincronización del registro local.
 ///
-/// Vive únicamente en el dispositivo: el servidor no lo conoce ni lo necesita.
+/// Corresponde al dominio de la columna `estado_sync` del diseño. Vive en el
+/// dispositivo y en la bitácora del servidor.
 enum EstadoSync {
-  /// Creado o modificado sin conexión, pendiente de envío.
-  pendiente('PENDIENTE'),
+  /// Creado o modificado sin conexión, pendiente de consolidar.
+  pendiente('pendiente'),
 
   /// Confirmado por el servidor.
-  sincronizado('SINCRONIZADO'),
+  sincronizado('sincronizado'),
 
-  /// El envío falló de forma no recuperable y requiere intervención.
-  conflicto('CONFLICTO');
+  /// La consolidación falló de forma no recuperable y requiere que el usuario
+  /// resuelva la divergencia.
+  conflicto('conflicto');
 
   const EstadoSync(this.valor);
   final String valor;
@@ -88,10 +88,10 @@ enum EstadoSync {
 }
 
 enum Rol {
-  administrador('ADMINISTRADOR', 'Administrador'),
-  propietario('PROPIETARIO', 'Propietario'),
-  personalCampo('PERSONAL_CAMPO', 'Personal de campo'),
-  veterinario('VETERINARIO', 'Veterinario');
+  administrador('administrador', 'Administrador'),
+  personalCampo('personal_campo', 'Personal de campo'),
+  veterinario('veterinario', 'Veterinario'),
+  propietario('propietario', 'Propietario');
 
   const Rol(this.valor, this.etiqueta);
   final String valor;
@@ -100,30 +100,28 @@ enum Rol {
   static Rol desde(String v) => Rol.values
       .firstWhere((e) => e.valor == v, orElse: () => Rol.personalCampo);
 
-  /// El veterinario consulta el hato pero no registra ni modifica animales.
+  /// El veterinario consulta el hato y registra eventos sanitarios, pero no
+  /// da de alta ni modifica animales.
   bool get puedeEditarAnimales => this != Rol.veterinario;
 }
 
 class Usuario {
   const Usuario({
-    required this.id,
+    required this.idUsuario,
     required this.email,
     required this.nombre,
     required this.rol,
-    this.predioId,
   });
 
-  final String id;
+  final String idUsuario;
   final String email;
   final String nombre;
   final Rol rol;
-  final String? predioId;
 
   factory Usuario.desdeJson(Map<String, dynamic> json) => Usuario(
-        id: json['id'] as String,
+        idUsuario: json['idUsuario'] as String,
         email: json['email'] as String,
         nombre: json['nombre'] as String? ?? '',
         rol: Rol.desde(json['rol'] as String),
-        predioId: json['predioId'] as String?,
       );
 }

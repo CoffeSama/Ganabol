@@ -55,7 +55,7 @@ class DetalleAnimalScreen extends ConsumerWidget {
     );
 
     if (confirmado != true || !context.mounted) return;
-    await ref.read(animalesRepositoryProvider).eliminar(animal.id);
+    await ref.read(animalesRepositoryProvider).eliminar(animal.idAnimal);
     if (context.mounted) context.pop();
   }
 
@@ -108,7 +108,7 @@ class DetalleAnimalScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        animal.sexo == 'MACHO' ? Icons.male : Icons.female,
+                        animal.sexo == 'M' ? Icons.male : Icons.female,
                         size: 46,
                         color: AppTheme.colorFase(animal.fase),
                       ),
@@ -119,19 +119,13 @@ class DetalleAnimalScreen extends ConsumerWidget {
                       style: const TextStyle(
                           fontSize: 26, fontWeight: FontWeight.bold),
                     ),
-                    if (animal.nombre != null)
-                      Text(
-                        animal.nombre!,
-                        style: TextStyle(
-                            fontSize: 17, color: esquema.onSurfaceVariant),
-                      ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       children: [
                         EtiquetaEstado(
                           texto:
-                              FaseProductiva.desde(animal.fase).etiqueta,
+                              FaseManejo.desde(animal.fase).etiqueta,
                           color: AppTheme.colorFase(animal.fase),
                         ),
                         EtiquetaEstado(
@@ -169,21 +163,15 @@ class DetalleAnimalScreen extends ConsumerWidget {
                         '  ·  ${_edad(animal.fechaNacimiento!)}',
                 atenuado: animal.fechaNacimiento == null,
               ),
-              if (animal.observaciones != null)
-                _Dato(
-                  icono: Icons.notes,
-                  etiqueta: 'Observaciones',
-                  valor: animal.observaciones!,
-                ),
               const Divider(height: 40),
               _Dato(
-                icono: animal.estadoSync == 'SINCRONIZADO'
+                icono: animal.estadoSync == 'sincronizado'
                     ? Icons.cloud_done_outlined
                     : Icons.cloud_queue,
                 etiqueta: 'Sincronización',
                 valor: switch (animal.estadoSync) {
-                  'SINCRONIZADO' => 'Guardado en el servidor',
-                  'CONFLICTO' => 'Conflicto: requiere revisión',
+                  'sincronizado' => 'Guardado en el servidor',
+                  'conflicto' => 'Conflicto: requiere revisión',
                   _ => 'Pendiente de enviar',
                 },
               ),
@@ -191,7 +179,7 @@ class DetalleAnimalScreen extends ConsumerWidget {
                 icono: Icons.schedule,
                 etiqueta: 'Registrado',
                 valor:
-                    DateFormat('d MMM yyyy, HH:mm', 'es').format(animal.createdAt),
+                    DateFormat('d MMM yyyy, HH:mm', 'es').format(animal.creadoEn),
               ),
             ],
           );

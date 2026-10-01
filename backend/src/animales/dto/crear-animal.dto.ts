@@ -7,64 +7,57 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CategoriaAnimal, EstadoAnimal, FaseProductiva, Sexo } from '@prisma/client';
+import {
+  CategoriaAnimal,
+  EstadoAnimal,
+  FaseManejo,
+  Sexo,
+} from '@prisma/client';
+
+const ULID = /^[0-9A-HJKMNP-TV-Z]{26}$/;
 
 export class CrearAnimalDto {
-  /// ULID generado por el cliente. Permite registrar animales sin conexión
-  /// y sincronizarlos después sin colisiones de identificador.
+  /// ULID generado por el cliente, lo que permite dar de alta un animal sin
+  /// conexión y consolidarlo después sin colisiones de identificador.
   @ApiProperty({ example: '01JGKQZ8XW4P7N2M5R8T3V6Y9B' })
-  @IsString()
-  @Matches(/^[0-9A-HJKMNP-TV-Z]{26}$/, { message: 'El id debe ser un ULID válido' })
-  id!: string;
+  @Matches(ULID, { message: 'El identificador debe ser un ULID válido' })
+  idAnimal!: string;
 
-  @ApiProperty({ example: 'A-104' })
+  @ApiProperty({ example: 'A-104', description: 'Número de caravana del animal' })
   @IsString()
-  @Length(1, 30)
+  @Length(1, 20)
   caravana!: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @Length(1, 80)
-  nombre?: string;
-
-  @ApiProperty({ enum: Sexo })
-  @IsEnum(Sexo)
-  sexo!: Sexo;
+  @ApiProperty({ enum: CategoriaAnimal })
+  @IsEnum(CategoriaAnimal)
+  categoria!: CategoriaAnimal;
 
   @ApiPropertyOptional({ example: 'Nelore' })
   @IsOptional()
   @IsString()
-  @Length(1, 60)
+  @Length(1, 40)
   raza?: string;
+
+  @ApiProperty({ enum: Sexo, description: 'M para macho, H para hembra' })
+  @IsEnum(Sexo)
+  sexo!: Sexo;
 
   @ApiPropertyOptional({ example: '2025-03-14' })
   @IsOptional()
   @IsDateString()
   fechaNacimiento?: string;
 
-  @ApiProperty({ enum: CategoriaAnimal })
-  @IsEnum(CategoriaAnimal)
-  categoria!: CategoriaAnimal;
-
-  @ApiPropertyOptional({ enum: FaseProductiva })
-  @IsOptional()
-  @IsEnum(FaseProductiva)
-  fase?: FaseProductiva;
+  @ApiProperty({ enum: FaseManejo })
+  @IsEnum(FaseManejo)
+  fase!: FaseManejo;
 
   @ApiPropertyOptional({ enum: EstadoAnimal })
   @IsOptional()
   @IsEnum(EstadoAnimal)
   estado?: EstadoAnimal;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Potrero en que se encuentra el animal' })
   @IsOptional()
-  @Matches(/^[0-9A-HJKMNP-TV-Z]{26}$/)
-  madreId?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @Length(0, 500)
-  observaciones?: string;
+  @Matches(ULID)
+  idPotrero?: string;
 }

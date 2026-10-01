@@ -27,76 +27,76 @@ class ResultadoSync {
 /// Acceso al inventario bovino.
 ///
 /// Toda lectura y escritura va contra la base local: la interfaz nunca espera
-/// a la red. La sincronización con el servidor ocurre aparte, cuando hay
+/// a la red. La consolidación con el servidor ocurre aparte, cuando hay
 /// conexión, y los cambios que trae se reflejan solos en la pantalla porque
-/// las consultas locales son streams.
+/// las consultas locales son flujos observables.
 class AnimalesRepository {
   AnimalesRepository(this._db, this._api);
 
   final BaseDatosLocal _db;
   final ApiClient _api;
 
-  static const _entidad = 'animales';
+  static const _entidad = 'animal';
 
   Stream<List<Animal>> observar({String? busqueda, String? fase}) =>
       _db.observarAnimales(busqueda: busqueda, fase: fase);
 
-  Future<Animal?> obtener(String id) => _db.obtenerAnimal(id);
+  Stream<List<Potrero>> observarPotreros() => _db.observarPotreros();
+
+  Future<Animal?> obtener(String idAnimal) => _db.obtenerAnimal(idAnimal);
 
   Future<int> contarPendientes() => _db.contarPendientes();
 
-  /// Registra un animal. El identificador se genera aquí, en el dispositivo,
+  /// Da de alta un animal. El identificador se genera aquí, en el dispositivo,
   /// antes de cualquier contacto con el servidor.
   Future<String> registrar({
     required String caravana,
     required Sexo sexo,
     required CategoriaAnimal categoria,
-    required String predioId,
-    String? nombre,
+    required FaseManejo fase,
+    required String idUsuario,
     String? raza,
     DateTime? fechaNacimiento,
-    FaseProductiva fase = FaseProductiva.crianza,
-    String? observaciones,
+    String? idPotrero,
   }) async {
-    final id = Ulid().toString();
+    final idAnimal = Ulid().toString();
 
     await _db.guardarAnimal(
       AnimalesCompanion.insert(
-        id: id,
+        idAnimal: idAnimal,
+        idUsuario: idUsuario,
         caravana: caravana,
-        sexo: sexo.valor,
         categoria: categoria.valor,
-        predioId: predioId,
-        nombre: Value(nombre),
+        sexo: sexo.valor,
+        fase: fase.valor,
         raza: Value(raza),
         fechaNacimiento: Value(fechaNacimiento),
-        fase: Value(fase.valor),
-        observaciones: Value(observaciones),
+        idPotrero: Value(idPotrero),
       ),
     );
 
-    // Intento oportunista: si hay señal el animal sube enseguida, y si no,
-    // queda pendiente para la próxima pasada.
+    // Intento oportunista: con señal el animal sube enseguida; sin ella queda
+    // pendiente para la próxima pasada.
     unawaited(sincronizar());
-    return id;
+    return idAnimal;
   }
 
   Future<void> actualizar(
-    String id, {
+    String idAnimal, {
     String? caravana,
-    String? nombre,
     Sexo? sexo,
     String? raza,
     DateTime? fechaNacimiento,
     CategoriaAnimal? categoria,
-    FaseProductiva? fase,
+    FaseManejo? fase,
     EstadoAnimal? estado,
-    String? observaciones,
+    String? idPotrero,
   }) async {
-    await (_db.update(_db.animales)..where((a) => a.id.equals(id))).write(
+    await (_db.update(_db.animales)
+          ..where((a) => a.idAnimal.equals(idAnimal)))
+        .write(
       AnimalesCompanion(
         caravana: caravana == null ? const Value.absent() : Value(caravana),
-        nombre: nombre == null ? const Value.absent() : Value(nombre),
         sexo: sexo == null ? const Value.absent() : Value(sexo.valor),
         raza: raza == null ? const Value.absent() : Value(raza),
         fechaNacimiento: fechaNacimiento == null
@@ -106,17 +106,16 @@ class AnimalesRepository {
             categoria == null ? const Value.absent() : Value(categoria.valor),
         fase: fase == null ? const Value.absent() : Value(fase.valor),
         estado: estado == null ? const Value.absent() : Value(estado.valor),
-        observaciones:
-            observaciones == null ? const Value.absent() : Value(observaciones),
-        updatedAt: Value(DateTime.now()),
-        estadoSync: const Value('PENDIENTE'),
+        idPotrero: idPotrero == null ? const Value.absent() : Value(idPotrero),
+        actualizadoEn: Value(DateTime.now()),
+        estadoSync: const Value('pendiente'),
       ),
     );
     unawaited(sincronizar());
   }
 
-  Future<void> eliminar(String id) async {
-    await _db.eliminarAnimal(id);
+  Future<void> eliminar(String idAnimal) async {
+    await _db.eliminarAnimal(idAnimal);
     unawaited(sincronizar());
   }
 
@@ -130,8 +129,8 @@ class AnimalesRepository {
   /// Envía lo pendiente y trae lo que cambió en el servidor.
   ///
   /// El envío va primero: si un animal se creó aquí y también se modificó en
-  /// el panel web, conviene que el servidor conozca ambos cambios antes de
-  /// que el dispositivo se quede con una versión sola.
+  /// el panel web, conviene que el servidor conozca ambos cambios antes de que
+  /// el dispositivo se quede con una sola versión.
   Future<ResultadoSync> sincronizar() async {
     if (!await hayConexion()) {
       return const ResultadoSync(
@@ -146,11 +145,7 @@ class AnimalesRepository {
       final recibidos = await _traerCambios();
       return ResultadoSync(enviados: enviados, recibidos: recibidos);
     } on DioException catch (e) {
-      return ResultadoSync(
-        enviados: 0,
-        recibidos: 0,
-        error: _mensajeDeError(e),
-      );
+      return ResultadoSync(enviados: 0, recibidos: 0, error: _mensaje(e));
     }
   }
 
@@ -159,28 +154,28 @@ class AnimalesRepository {
     var enviados = 0;
 
     for (final animal in pendientes) {
-      final esNuevo = animal.createdAt == animal.updatedAt;
+      final esAlta = animal.creadoEn == animal.actualizadoEn;
 
-      final respuesta = esNuevo
+      final respuesta = esAlta
           ? await _api.dio.post<Map<String, dynamic>>(
               '/animales',
               data: _aJson(animal, incluirId: true),
             )
           : await _api.dio.patch<Map<String, dynamic>>(
-              '/animales/${animal.id}',
+              '/animales/${animal.idAnimal}',
               data: _aJson(animal, incluirId: false),
             );
 
       final codigo = respuesta.statusCode ?? 0;
 
       if (codigo >= 200 && codigo < 300) {
-        await _db.marcarSincronizado(animal.id);
+        await _db.marcarSincronizado(animal.idAnimal);
         enviados++;
       } else if (codigo == 409) {
-        // Caravana duplicada en el servidor: el usuario tiene que decidir,
-        // así que se marca y se deja de reintentar en cada pasada.
-        await (_db.update(_db.animales)..where((a) => a.id.equals(animal.id)))
-            .write(const AnimalesCompanion(estadoSync: Value('CONFLICTO')));
+        // La caravana ya existe en el servidor con otro identificador: el
+        // usuario tiene que decidir, de modo que se marca y se deja de
+        // reintentar en cada pasada.
+        await _db.marcarConflicto(animal.idAnimal);
       }
     }
 
@@ -188,8 +183,7 @@ class AnimalesRepository {
   }
 
   Future<int> _traerCambios() async {
-    final desde =
-        await _db.ultimaSync(_entidad) ?? DateTime.utc(2000);
+    final desde = await _db.ultimaSync(_entidad) ?? DateTime.utc(2000);
 
     final respuesta = await _api.dio.get<Map<String, dynamic>>(
       '/animales/cambios',
@@ -212,52 +206,45 @@ class AnimalesRepository {
   }
 
   Map<String, dynamic> _aJson(Animal a, {required bool incluirId}) => {
-        if (incluirId) 'id': a.id,
+        if (incluirId) 'idAnimal': a.idAnimal,
         'caravana': a.caravana,
-        if (a.nombre != null) 'nombre': a.nombre,
-        'sexo': a.sexo,
+        'categoria': a.categoria,
         if (a.raza != null) 'raza': a.raza,
+        'sexo': a.sexo,
         if (a.fechaNacimiento != null)
           'fechaNacimiento':
               a.fechaNacimiento!.toIso8601String().split('T').first,
-        'categoria': a.categoria,
         'fase': a.fase,
         'estado': a.estado,
-        if (a.madreId != null) 'madreId': a.madreId,
-        if (a.observaciones != null) 'observaciones': a.observaciones,
+        if (a.idPotrero != null) 'idPotrero': a.idPotrero,
       };
 
   AnimalesCompanion _desdeJson(Map<String, dynamic> json) =>
       AnimalesCompanion.insert(
-        id: json['id'] as String,
+        idAnimal: json['idAnimal'] as String,
+        idUsuario: json['idUsuario'] as String,
         caravana: json['caravana'] as String,
-        sexo: json['sexo'] as String,
         categoria: json['categoria'] as String,
-        predioId: json['predioId'] as String,
-        nombre: Value(json['nombre'] as String?),
+        sexo: json['sexo'] as String,
+        fase: json['fase'] as String,
         raza: Value(json['raza'] as String?),
+        idPotrero: Value(json['idPotrero'] as String?),
         fechaNacimiento: Value(json['fechaNacimiento'] == null
             ? null
             : DateTime.parse(json['fechaNacimiento'] as String)),
-        fase: Value(json['fase'] as String? ?? 'CRIANZA'),
-        estado: Value(json['estado'] as String? ?? 'ACTIVO'),
-        madreId: Value(json['madreId'] as String?),
-        observaciones: Value(json['observaciones'] as String?),
-        createdAt: Value(DateTime.parse(json['createdAt'] as String)),
-        updatedAt: Value(DateTime.parse(json['updatedAt'] as String)),
-        deletedAt: Value(json['deletedAt'] == null
-            ? null
-            : DateTime.parse(json['deletedAt'] as String)),
-        // Viene del servidor, así que ya está sincronizado.
-        estadoSync: const Value('SINCRONIZADO'),
+        estado: Value(json['estado'] as String? ?? 'activo'),
+        creadoEn: Value(DateTime.parse(json['creadoEn'] as String)),
+        actualizadoEn: Value(DateTime.parse(json['actualizadoEn'] as String)),
+        eliminado: Value(json['eliminado'] as bool? ?? false),
+        // Viene del servidor, de modo que ya está consolidado.
+        estadoSync: const Value('sincronizado'),
       );
 
-  String _mensajeDeError(DioException e) => switch (e.type) {
+  String _mensaje(DioException e) => switch (e.type) {
         DioExceptionType.connectionTimeout ||
         DioExceptionType.receiveTimeout =>
           'El servidor tardó demasiado en responder',
-        DioExceptionType.connectionError =>
-          'No se pudo contactar al servidor',
+        DioExceptionType.connectionError => 'No se pudo contactar al servidor',
         _ => 'Error de sincronización',
       };
 }
