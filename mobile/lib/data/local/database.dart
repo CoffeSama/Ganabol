@@ -61,7 +61,17 @@ class MarcasSync extends Table {
 @DriftDatabase(tables: [Animales, MarcasSync])
 class BaseDatosLocal extends _$BaseDatosLocal {
   BaseDatosLocal([QueryExecutor? executor])
-      : super(executor ?? driftDatabase(name: 'ganabol'));
+      : super(executor ?? driftDatabase(name: 'ganabol', web: _opcionesWeb));
+
+  /// En móvil y escritorio SQLite corre de forma nativa. En web, en cambio,
+  /// el motor viaja como WebAssembly y las consultas se ejecutan en un worker
+  /// aparte para no bloquear la interfaz; ambos archivos se sirven desde
+  /// `web/`. Esta configuración solo se usa al compilar para navegador: en
+  /// Android se ignora.
+  static final _opcionesWeb = DriftWebOptions(
+    sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+    driftWorker: Uri.parse('drift_worker.js'),
+  );
 
   @override
   int get schemaVersion => 1;

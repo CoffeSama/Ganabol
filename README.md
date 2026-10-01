@@ -59,10 +59,13 @@ se generan localmente:
 
 ```bash
 cd mobile
-flutter create . --platforms=android,windows
+flutter create . --platforms=android
 flutter pub get
 dart run build_runner build
 ```
+
+La carpeta `web/` sí está versionada, porque contiene los archivos que SQLite
+necesita para correr en navegador (`sqlite3.wasm` y `drift_worker.js`).
 
 Para correrla apuntando a un backend local:
 
@@ -73,8 +76,8 @@ flutter run --dart-define=API_URL=http://10.0.2.2:3000/api
 # Teléfono físico: usar la IP de la máquina en la red local
 flutter run --dart-define=API_URL=http://192.168.1.10:3000/api
 
-# Escritorio, para iterar la interfaz con hot reload
-flutter run -d windows --dart-define=API_URL=http://localhost:3000/api
+# Navegador, para iterar la interfaz sin emulador
+flutter run -d chrome --dart-define=API_URL=http://localhost:3000/api
 ```
 
 Pruebas: `flutter test` en `mobile/`, `npm test` en `backend/`.
