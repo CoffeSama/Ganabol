@@ -7,10 +7,17 @@
 // datos», conservando sus nombres de tabla y de columna, sus restricciones de
 // dominio y sus reglas de integridad referencial.
 //
-// Alcance implementado: Incremento 1 (identidad, accesos y sincronización) y
-// el inventario bovino del Incremento 2. Las entidades de pesaje, sanidad,
-// comercialización, reproducción y evaluación están diseñadas en el documento
-// citado y corresponden a incrementos posteriores.
+// Alcance implementado: Incremento 1 (identidad, accesos y sincronización), el
+// inventario bovino, el pesaje morfométrico y el historial sanitario con su
+// calendario de alertas. Las entidades de comercialización, reproducción y
+// evaluación ponderada están diseñadas en el documento citado y corresponden a
+// incrementos posteriores.
+//
+// El diccionario de datos del documento incluye la columna `estado_sync` en las
+// tablas operativas. Esa columna pertenece a la réplica del dispositivo, que es
+// la que necesita distinguir lo que aún no ha consolidado; en el servidor el
+// seguimiento equivalente lo lleva `registro_sync`, de modo que el estado de
+// consolidación no se duplica en dos lugares con autoridad distinta.
 
 generator client {
   provider = "prisma-client-js"
@@ -60,6 +67,32 @@ enum EstadoAnimal {
   activo
   vendido
   baja
+}
+
+enum TipoEventoSanitario {
+  vacunacion
+  desparasitacion
+  tratamiento
+  diagnostico
+}
+
+/// Un plan sanitario programa aplicaciones preventivas y curativas, pero no
+/// diagnósticos: un diagnóstico se registra cuando ocurre, no se calendariza.
+enum TipoEventoPlan {
+  vacunacion
+  desparasitacion
+  tratamiento
+}
+
+enum TipoAlerta {
+  sanitaria
+  reproductiva
+}
+
+enum EstadoAlerta {
+  pendiente
+  atendida
+  vencida
 }
 
 enum OperacionSync {
@@ -139,10 +172,139 @@ model Animal {
   actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
   eliminado     Boolean  @default(false)
 
+  pesajes          Pesaje[]
+  eventosSanitarios EventoSanitario[]
+  alertas          Alerta[]
+
   @@index([estado, eliminado])
   @@index([actualizadoEn])
   @@index([idPotrero])
   @@map("animal")
+}
+
+/// Mediciones morfométricas y peso estimado.
+///
+/// El peso no se mide: se calcula con la fórmula de Schaeffer a partir del
+/// perímetro torácico y el largo corporal, y se almacena junto a las medidas
+/// que lo originaron. Conservar las medidas y no solo el resultado permite
+/// recalcular el historial completo si la constante se recalibra, que es
+/// justamente lo que el diseño prevé para el ganado cebú de la zona.
+model Pesaje {
+  idPesaje String @id @map("id_pesaje") @db.Char(26)
+
+  idAnimal String @map("id_animal") @db.Char(26)
+  animal   Animal @relation(fields: [idAnimal], references: [idAnimal], onDelete: Restrict)
+
+  fecha             DateTime @db.Date
+  perimetroToracico Decimal  @map("perimetro_toracico") @db.Decimal(6, 2)
+  largoCorporal     Decimal  @map("largo_corporal") @db.Decimal(6, 2)
+  pesoEstimado      Decimal  @map("peso_estimado") @db.Decimal(6, 2)
+
+  /// Constante de la fórmula con la que se obtuvo este peso. Se guarda en el
+  /// registro para que una recalibración posterior no invalide la trazabilidad
+  /// de los pesos ya estimados.
+  constante Decimal @db.Decimal(8, 2)
+
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
+
+  @@index([idAnimal, fecha])
+  @@index([actualizadoEn])
+  @@map("pesaje")
+}
+
+/// Eventos sanitarios del hato.
+model EventoSanitario {
+  idEvento String @id @map("id_evento") @db.Char(26)
+
+  idAnimal String @map("id_animal") @db.Char(26)
+  animal   Animal @relation(fields: [idAnimal], references: [idAnimal], onDelete: Restrict)
+
+  /// Protocolo que este evento cumple, cuando se registra en respuesta a uno.
+  ///
+  /// Refinamiento surgido en la implementación: el diccionario de datos
+  /// identificaba el evento solo por su tipo, de modo que dos protocolos de
+  /// vacunación distintos sobre el mismo animal —antiaftosa y carbunclo, por
+  /// ejemplo— compartían el mismo «último evento de vacunación» y aplicar uno
+  /// reiniciaba el conteo del otro. La referencia es opcional porque el
+  /// productor también registra eventos que no responden a ningún protocolo,
+  /// como el tratamiento de una herida.
+  idPlan String?        @map("id_plan") @db.Char(26)
+  plan   PlanSanitario? @relation(fields: [idPlan], references: [idPlan], onDelete: SetNull)
+
+  tipo        TipoEventoSanitario
+  producto    String?             @db.VarChar(100)
+  dosis       String?             @db.VarChar(40)
+  fecha       DateTime            @db.Date
+  responsable String?             @db.VarChar(120)
+
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
+
+  alertasAtendidas Alerta[]
+
+  @@index([idAnimal, fecha])
+  @@index([idAnimal, idPlan, fecha])
+  @@index([actualizadoEn])
+  @@map("evento_sanitario")
+}
+
+/// Protocolos sanitarios configurables que originan las alertas del calendario.
+model PlanSanitario {
+  idPlan String @id @map("id_plan") @db.Char(26)
+
+  nombre      String           @db.VarChar(100)
+  categoria   CategoriaAnimal?
+  tipoEvento  TipoEventoPlan   @map("tipo_evento")
+  descripcion String?          @db.VarChar(200)
+
+  /// Días entre aplicaciones del protocolo. El sistema programa la siguiente
+  /// aplicación sumando este intervalo a la fecha del último evento del tipo.
+  periodicidadDias Int @map("periodicidad_dias")
+
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
+
+  alertas Alerta[]
+  eventos EventoSanitario[]
+
+  @@index([eliminado])
+  @@map("plan_sanitario")
+}
+
+/// Tareas sanitarias y reproductivas próximas o vencidas generadas por el
+/// sistema.
+///
+/// Una alerta no se borra al atenderse: pasa a estado `atendida` y conserva el
+/// evento que la cerró. Así el calendario queda auditable, que es lo que exige
+/// el criterio de aceptación del requisito.
+model Alerta {
+  idAlerta String @id @map("id_alerta") @db.Char(26)
+
+  idAnimal String @map("id_animal") @db.Char(26)
+  animal   Animal @relation(fields: [idAnimal], references: [idAnimal], onDelete: Cascade)
+
+  idPlan String?        @map("id_plan") @db.Char(26)
+  plan   PlanSanitario? @relation(fields: [idPlan], references: [idPlan], onDelete: SetNull)
+
+  idEventoCierre String?          @map("id_evento_cierre") @db.Char(26)
+  eventoCierre   EventoSanitario? @relation(fields: [idEventoCierre], references: [idEvento], onDelete: SetNull)
+
+  tipo             TipoAlerta
+  descripcion      String?      @db.VarChar(200)
+  fechaProgramada  DateTime     @map("fecha_programada") @db.Date
+  estado           EstadoAlerta @default(pendiente)
+
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+  eliminado     Boolean  @default(false)
+
+  /// Una alerta vigente por animal y protocolo: la regeneración del calendario
+  /// debe actualizar la alerta existente, no acumular duplicados cada vez que
+  /// se ejecuta.
+  @@unique([idAnimal, idPlan, fechaProgramada])
+  @@index([estado, fechaProgramada])
+  @@index([actualizadoEn])
+  @@map("alerta")
 }
 
 /// Control del estado de sincronización de cada entidad operativa.

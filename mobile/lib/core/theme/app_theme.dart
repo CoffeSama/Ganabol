@@ -80,19 +80,32 @@ class AppTheme {
 
   /// Colores de los indicadores de estado del animal. Se definen aparte del
   /// esquema de marca porque su función es discriminar, no decorar.
+  ///
+  /// Los valores que se comparan son los del dominio tal como el esquema los
+  /// almacena, en minúsculas. Compararlos en otra caja haría que todos los
+  /// estados cayeran en la rama por omisión y la distinción se perdiera.
   static Color colorEstado(String estado, ColorScheme esquema) =>
       switch (estado) {
-        'ACTIVO' => const Color(0xFF2E7D32),
-        'VENDIDO' => const Color(0xFF1565C0),
-        'MUERTO' => esquema.error,
-        'EXTRAVIADO' => const Color(0xFFE65100),
+        'activo' => const Color(0xFF2E7D32),
+        'vendido' => const Color(0xFF1565C0),
+        'baja' => esquema.error,
         _ => esquema.outline,
       };
 
   static Color colorFase(String fase) => switch (fase) {
-        'CRIANZA' => const Color(0xFF7B1FA2),
-        'DESTETE' => const Color(0xFF00838F),
-        'ENGORDE' => const Color(0xFFEF6C00),
+        'crianza' => const Color(0xFF7B1FA2),
+        'destete' => const Color(0xFF00838F),
+        'engorde' => const Color(0xFFEF6C00),
         _ => const Color(0xFF616161),
+      };
+
+  /// Colores del calendario sanitario. Una tarea vencida y una próxima exigen
+  /// acciones distintas, de modo que deben distinguirse de un vistazo.
+  static Color colorAlerta(String estado, ColorScheme esquema) =>
+      switch (estado) {
+        'vencida' => esquema.error,
+        'pendiente' => const Color(0xFFEF6C00),
+        'atendida' => const Color(0xFF2E7D32),
+        _ => esquema.outline,
       };
 }

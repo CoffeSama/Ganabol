@@ -19,12 +19,12 @@ module.exports = function capitulos6y7() {
     ['Incremento', 'Alcance', 'Requisitos', 'Estado'],
     [
       ['1', 'Identidad, accesos y motor de sincronización', 'RF1, RF3, RF10', 'Implementado y verificado'],
-      ['2', 'Inventario, trazabilidad e historial sanitario con alertas', 'RF2, RF5, RF6, RF8, RF13', 'Inventario y trazabilidad implementados; sanidad y alertas en diseño'],
-      ['3', 'Estimación de peso y evaluación ponderada', 'RF4, RF7, RF14, RF15', 'Diseñado'],
+      ['2', 'Inventario, trazabilidad e historial sanitario con alertas', 'RF2, RF5, RF6, RF8, RF13', 'Implementado y verificado'],
+      ['3', 'Estimación de peso y evaluación ponderada', 'RF4, RF7, RF14, RF15', 'Estimación de peso implementada; evaluación ponderada y reproducción en diseño'],
       ['4', 'Panel web de reportes consolidados', 'RF9, RF11, RF12', 'Diseñado'],
     ],
     'Elaboración propia, 2026.', [0.1, 0.33, 0.17, 0.4]));
-  c.push(U.p('El estado consignado en el cuadro corresponde al momento de redacción del presente documento. El Incremento 1 está construido en su totalidad y verificado mediante pruebas automatizadas; del Incremento 2 está construida la parte de inventario y trazabilidad. Los incrementos restantes cuentan con su diseño completo —requisitos, casos de uso, modelo de datos y arquitectura— documentado en los capítulos anteriores, y su construcción corresponde a la continuación del cronograma.'));
+  c.push(U.p('El estado consignado en el cuadro corresponde al momento de redacción del presente documento. Están construidos y verificados mediante pruebas automatizadas el Incremento 1 en su totalidad, el Incremento 2 en su totalidad y la estimación morfométrica del peso, que es el componente del Incremento 3 que concentra el aporte técnico del trabajo. Restan la evaluación ponderada para la venta, el control reproductivo y el panel web consolidado, que cuentan con su diseño completo —requisitos, casos de uso, modelo de datos y arquitectura— documentado en los capítulos anteriores, y cuya construcción corresponde a la continuación del cronograma.'));
 
   c.push(U.h2('6.1.2.', 'Cronograma de actividades'));
   c.push(...U.cuadro('6.2', 'Cronograma general del proyecto por fases',
@@ -78,7 +78,7 @@ module.exports = function capitulos6y7() {
 
   // --- 6.3 ---
   c.push(U.h1('6.3.', 'Implementación de la solución'));
-  c.push(U.p('Se documenta a continuación lo efectivamente construido. El alcance implementado corresponde al Incremento 1 completo —identidad, accesos y motor de sincronización— y al inventario bovino del Incremento 2.'));
+  c.push(U.p('Se documenta a continuación lo efectivamente construido. El alcance implementado comprende el Incremento 1 completo —identidad, accesos y motor de sincronización—, el Incremento 2 completo —inventario, trazabilidad, historial sanitario y calendario de alertas— y la estimación morfométrica del peso corporal, primer componente del Incremento 3. En términos del modelo de datos, están en servicio ocho de las quince tablas diseñadas; en términos de requisitos funcionales, siete de los quince especificados.'));
 
   c.push(U.h2('6.3.1.', 'Implementación de la base de datos'));
   c.push(U.p('El esquema implementado reproduce el diseño documentado en la sección 5.3: conserva sus nombres de tabla y de columna, sus dominios categóricos, sus reglas de integridad referencial y sus marcas de baja lógica. Las tablas construidas en esta etapa son las correspondientes al núcleo operativo: usuarios, potreros, animales y la bitácora de sincronización.'));
@@ -147,7 +147,7 @@ module.exports = function capitulos6y7() {
       ['8', 'Veterinario intenta dar de alta un animal', 'Rechazo por rol no autorizado', 'Rechazado'],
       ['9', 'Asiento en la bitácora tras un alta', 'Un asiento de operación de alta', 'Correcto'],
     ],
-    'Elaboración propia, 2026. Ejecución sobre PostgreSQL 16 con el esquema del Incremento 1.',
+    'Elaboración propia, 2026. Ejecución sobre PostgreSQL 16 con el esquema implementado.',
     [0.06, 0.4, 0.3, 0.24]));
   c.push(U.p('El escenario 4 verifica la propiedad de idempotencia que exige la consolidación diferida: cuando el dispositivo pierde la respuesta del servicio y reintenta el envío, el registro no se duplica porque el identificador se genera en el cliente antes de la transmisión. El escenario 6 verifica que los dominios categóricos del diseño operan como restricción efectiva y no como mera documentación.'));
 
@@ -172,7 +172,46 @@ module.exports = function capitulos6y7() {
     'Elaboración propia, 2026. Ejecución sobre SQLite en memoria: doce de doce correctas.',
     [0.18, 0.42, 0.4]));
 
-  c.push(U.h2('6.5.3.', 'Verificación estática del código'));
+  c.push(U.h2('6.5.3.', 'Pruebas de la estimación morfométrica del peso'));
+  c.push(U.p('La fórmula de estimación está implementada dos veces: en el dispositivo, porque el pesaje ocurre en el corral sin conexión y el personal necesita el resultado en el momento de tomar la medida; y en el servicio central, porque es este el que custodia la constante en vigor y recalcula al consolidar. Que ambas implementaciones coincidan hasta el segundo decimal se verifica con los mismos siete casos en las dos suites de prueba. La razón es concreta: si una se desviara de la otra, el peso que el productor vio en el campo cambiaría al sincronizar, y el historial de crecimiento del animal dejaría de ser comparable consigo mismo.'));
+  c.push(...U.cuadro('6.7', 'Casos de verificación cruzada de la estimación de peso',
+    ['Perímetro torácico (cm)', 'Largo corporal (cm)', 'Peso estimado (kg)'],
+    [
+      ['180', '150', '448,42'],
+      ['176', '143', '408,71'],
+      ['168', '138', '359,38'],
+      ['158', '131', '301,74'],
+      ['186', '152', '485,20'],
+      ['214', '176', '743,69'],
+      ['94', '78', '63,59'],
+    ],
+    'Elaboración propia, 2026. Los siete casos se afirman de forma idéntica en la suite del dispositivo y en la del servicio central.',
+    [0.36, 0.32, 0.32]));
+  c.push(U.p('La validación de rangos opera sobre las medidas de entrada y también sobre el resultado, porque una combinación de medidas individualmente plausibles puede arrojar un peso que no lo es: un perímetro de sesenta centímetros con un largo de cincuenta, ambos dentro de su rango, producen una estimación de dieciséis kilogramos, menos que un ternero recién nacido. El sistema la rechaza y solicita repetir la medición.'));
+  c.push(U.p('El procedimiento de calibración está implementado y verificado en su mecanismo: sobre una muestra construida a partir de una constante conocida, el ajuste por mínimos cuadrados la recupera y reduce el error medio absoluto por debajo del uno por mil. Conviene señalar con precisión qué significa esto y qué no. Se verifica que el procedimiento de ajuste funciona; no se valida que la estimación cumpla el objetivo del ocho por ciento de error. Esa validación requiere la muestra de referencia real, medida y pesada en campo, y permanece pendiente.'));
+
+  c.push(U.h2('6.5.4.', 'Pruebas del historial sanitario y del calendario'));
+  c.push(U.p('El calendario sanitario se verifica con la fecha de referencia como parámetro y no como lectura del reloj del sistema. La razón es que un calendario comprobado contra la fecha de ejecución pasaría hoy y fallaría dentro de seis meses sin que el código hubiera cambiado, y esa clase de prueba da una seguridad falsa.'));
+  c.push(...U.cuadro('6.8', 'Escenarios verificados del calendario de alertas',
+    ['N.º', 'Escenario', 'Propiedad que verifica'],
+    [
+      ['1', 'Primera generación del calendario sobre el hato', 'Las alertas se derivan del protocolo, de la categoría del animal y de su historial'],
+      ['2', 'Segunda generación consecutiva, sin cambios de por medio', 'Idempotencia: la operación puede invocarse sin coordinación y no acumula duplicados'],
+      ['3', 'Registro del evento que cumple un protocolo', 'La tarea sale de la bandeja de pendientes y queda como atendida'],
+      ['4', 'Dos protocolos de vacunación sobre el mismo animal', 'Aplicar uno no da por cumplido el otro'],
+      ['5', 'Evento registrado sin indicar protocolo', 'Se cierran las tareas del mismo tipo, que es lo más fiel que puede inferirse'],
+      ['6', 'Vencimiento del ciclo siguiente, fuera de la ventana', 'El evento de hoy no lo da por cumplido'],
+      ['7', 'Registro de un evento en un animal del hato', 'No altera las tareas de los demás animales'],
+      ['8', 'Baja de un evento ya registrado', 'Las tareas que había cerrado vuelven a quedar pendientes'],
+      ['9', 'Cierre de la tarea sin conexión', 'El dispositivo la marca de inmediato y el servicio confirma al consolidar'],
+    ],
+    'Elaboración propia, 2026.', [0.06, 0.4, 0.54]));
+  c.push(U.p('El escenario 9 recoge una decisión de diseño que el entorno impone. Si el cierre de una tarea requiriera confirmación del servidor, el personal de campo seguiría viendo como pendiente una vacuna que acaba de aplicar, y la aplicaría dos veces. El dispositivo cierra la tarea en el momento y el servicio confirma el mismo cierre al consolidar el evento, aplicando la misma regla sobre los mismos datos.'));
+
+  c.push(U.h2('6.5.5.', 'Verificación de la aplicación de principio a fin'));
+  c.push(U.p('Además de las pruebas automatizadas, la aplicación se compiló y se recorrió contra el servicio central en funcionamiento: ingreso, sincronización, consulta del hato, calendario de alertas, ficha del animal con su historial de pesos y su historial sanitario, y registro de un pesaje nuevo con su consolidación. Esta verificación no sustituye a las pruebas automatizadas, pero alcanza una clase de defecto que aquellas no pueden detectar, porque no reside en ninguna función sino en el encuentro entre dos piezas que fueron escritas por separado y comprobadas por separado.'));
+
+  c.push(U.h2('6.5.6.', 'Verificación estática del código'));
   c.push(U.p('El análisis estático de la aplicación móvil se ejecuta sobre el conjunto de reglas recomendado para el lenguaje, ampliado con reglas adicionales de estilo y de tipado explícito. El análisis no reporta advertencias ni errores. El servicio central se compila con verificación estricta de tipos y nulidad, de modo que una categoría entera de errores queda descartada antes de la ejecución.'));
 
   c.push(U.h2('6.5.4.', 'Pruebas pendientes'));
@@ -182,30 +221,37 @@ module.exports = function capitulos6y7() {
   c.push(U.h1('6.6.', 'Resultados de las pruebas'));
 
   c.push(U.h2('6.6.1.', 'Resultados funcionales'));
-  c.push(U.p('Los veintiún escenarios ejecutados —nueve sobre la interfaz de programación y doce sobre la base local— se completaron con el resultado esperado. La operación sin conexión quedó verificada en su propiedad esencial: un alta realizada sin red queda disponible de inmediato para consulta en el mismo dispositivo y se consolida sin pérdida ni duplicación cuando la conexión se restablece.'));
+  c.push(U.p('La verificación comprende ciento veintiséis pruebas automatizadas —cuarenta y ocho sobre el servicio central y setenta y ocho sobre la aplicación— y veinticinco escenarios ejecutados sobre el sistema en funcionamiento, todos con el resultado esperado. La operación sin conexión quedó verificada en su propiedad esencial: un registro realizado sin red queda disponible de inmediato para consulta en el mismo dispositivo y se consolida sin pérdida ni duplicación cuando la conexión se restablece. La estimación de peso quedó verificada en su propiedad crítica: el valor que el dispositivo calcula en el campo y el que el servicio recalcula al consolidar coinciden hasta el segundo decimal.'));
 
   c.push(U.h2('6.6.2.', 'Incidencias encontradas y correcciones aplicadas'));
-  c.push(U.p('El proceso de verificación reveló tres incidencias que conviene documentar, porque el valor de una prueba reside precisamente en lo que descubre.'));
-  c.push(...U.cuadro('6.7', 'Incidencias detectadas durante la verificación y su resolución',
+  c.push(U.p('El proceso de verificación reveló seis incidencias que conviene documentar, porque el valor de una prueba reside precisamente en lo que descubre. Las tres primeras surgieron durante la construcción del Incremento 1; las tres restantes, al recorrer la aplicación de principio a fin, y ninguna de ellas podría haber aparecido en una prueba unitaria, porque no residen en una función sino en el encuentro entre dos piezas.'));
+  c.push(...U.cuadro('6.9', 'Incidencias detectadas durante la verificación y su resolución',
     ['Incidencia', 'Detección', 'Resolución'],
     [
       ['El cursor de sincronización se recupera de la base expresado en hora local y no en tiempo universal', 'Prueba unitaria de recuperación del cursor', 'El instante es el mismo y la consulta de cambios ya convertía a tiempo universal antes de enviar; se ajustó la prueba para comparar el instante y no la zona horaria'],
       ['La capa de persistencia del navegador no arrancaba por falta de la configuración de sus archivos de ejecución', 'Carga de la aplicación en navegador', 'Se declaró de forma explícita la configuración requerida; sin ella la base no inicia y la aplicación falla al abrir'],
       ['El esquema construido había introducido una entidad de agrupación que el diseño documentado no contempla', 'Contraste entre el documento de diseño de base de datos y el esquema implementado', 'Se alineó la implementación al diseño documentado: se sustituyó la entidad por la que define el diseño y se ajustaron los dominios categóricos, la unicidad de la caravana y la función de resumen de las contraseñas'],
+      ['Los identificadores generados en el dispositivo se emitían en minúsculas, mientras que el servicio valida el alfabeto canónico en mayúsculas', 'Consolidación de un pesaje registrado desde la aplicación', 'Todo registro creado en el dispositivo era rechazado al sincronizar. Se normalizó el identificador a su forma canónica en el punto de generación y se fijó la regla con una prueba que valida contra la misma expresión que aplica el servicio'],
+      ['El servicio respondía a la autenticación con el código que su marco asigna por omisión a las peticiones de creación, y el cliente exigía el código exacto de consulta satisfactoria', 'Ingreso a la aplicación contra el servicio real', 'Era imposible iniciar sesión. Se corrigió en ambos extremos: el servicio declara el código que corresponde a una operación que no crea ningún recurso, y el cliente admite cualquier respuesta satisfactoria'],
+      ['Las fechas del calendario, emitidas como día universal, se interpretaban en el dispositivo como instantes', 'Recorrido del calendario de alertas en la aplicación', 'En Bolivia, cuatro horas al oeste del meridiano de referencia, la conversión retrocedía la fecha un día y una tarea programada para hoy aparecía vencida ayer. Se separó el tratamiento de los días del almanaque del de los instantes, y las pruebas se ejecutan en el huso horario de La Paz'],
     ],
     'Elaboración propia, 2026.', [0.3, 0.22, 0.48]));
+  c.push(U.p('La cuarta incidencia es la de mayor gravedad funcional. Anulaba por completo la captura sin conexión, que es la razón de ser del sistema, y no se había manifestado en ninguna de las pruebas anteriores porque en los escenarios de la interfaz de programación los identificadores se escribieron a mano, ya en la forma canónica. Es el ejemplo más claro de por qué una suite de pruebas unitarias, por extensa que sea, no sustituye a la verificación del sistema completo: cada pieza cumplía su contrato y el defecto estaba en que ambas entendían el contrato de forma distinta.'));
   c.push(U.p('La tercera incidencia es la de mayor relevancia metodológica. El código del Incremento 1 se construyó antes de disponer de los documentos técnicos de diseño, e introdujo un modelo de agrupación que el diseño nunca tuvo. La divergencia habría aparecido en cualquier revisión que contrastara el documento con el repositorio. La corrección se aplicó sobre el código y no sobre el documento, criterio que corresponde cuando el diseño ha sido revisado y aprobado.'));
 
   c.push(U.h2('6.6.3.', 'Cumplimiento de requisitos'));
-  c.push(...U.cuadro('6.8', 'Estado de cumplimiento de los requisitos funcionales',
+  c.push(...U.cuadro('6.10', 'Estado de cumplimiento de los requisitos funcionales',
     ['Requisito', 'Estado', 'Evidencia'],
     [
       ['RF1. Gestionar usuarios y roles', 'Implementado y verificado', 'Escenarios 1, 7 y 8 de la interfaz de programación'],
       ['RF2. Registrar y administrar el ganado', 'Implementado y verificado', 'Escenarios 2 a 6; pruebas de registro local'],
       ['RF3. Operar y registrar sin conexión', 'Implementado y verificado', 'Pruebas de registro local y de baja lógica'],
       ['RF10. Sincronizar los datos y resolver conflictos', 'Implementado y verificado', 'Escenarios 4 y 9; pruebas del grupo de sincronización'],
+      ['RF4. Estimar el peso por método morfométrico', 'Implementado y verificado; calibración pendiente', 'Verificación cruzada de los siete casos del Cuadro 6.7'],
+      ['RF5. Registrar eventos sanitarios', 'Implementado y verificado', 'Pruebas del historial sanitario local y del servicio'],
+      ['RF13. Gestionar alertas del calendario', 'Implementado y verificado', 'Nueve escenarios del Cuadro 6.8'],
       ['RF8. Registrar movimientos y ubicación', 'Parcial: la ubicación en potrero está implementada; el historial de movimientos no', 'Prueba del grupo de potreros'],
-      ['RF4 a RF7, RF9, RF11 a RF15', 'Diseñado, no implementado', 'Especificación y modelado de los Capítulos IV y V'],
+      ['RF6, RF7, RF9, RF11, RF12, RF14, RF15', 'Diseñado, no implementado', 'Especificación y modelado de los Capítulos IV y V'],
     ],
     'Elaboración propia, 2026.', [0.3, 0.3, 0.4]));
 
@@ -213,7 +259,7 @@ module.exports = function capitulos6y7() {
   c.push(U.h1('6.7.', 'Validación de la solución'));
 
   c.push(U.h2('6.7.1.', 'Validación técnica'));
-  c.push(U.p('La validación técnica alcanzada al momento de redacción consiste en la verificación automatizada documentada en la sección 6.5. Su alcance es el del código construido, y no permite afirmar nada sobre los componentes que permanecen en estado de diseño.'));
+  c.push(U.p('La validación técnica alcanzada al momento de redacción consiste en la verificación automatizada y el recorrido de la aplicación documentados en la sección 6.5. Su alcance es el del código construido, y no permite afirmar nada sobre los componentes que permanecen en estado de diseño. Corresponde señalar en particular que la precisión de la estimación de peso no está validada: lo verificado es que la fórmula se aplica de forma consistente en ambos extremos del sistema y que el procedimiento de calibración funciona, no que el peso estimado se aproxime al real dentro del margen declarado.'));
 
   c.push(U.h2('6.7.2.', 'Validación con usuarios'));
   c.push(U.p('Las sesiones de validación con el grupo piloto se ejecutan al cierre de cada incremento conforme al protocolo establecido en la sección 3.6.3. El puntaje de usabilidad y los resultados de las tareas asignadas se incorporarán al presente capítulo conforme las sesiones se realicen.'));
@@ -236,11 +282,11 @@ module.exports = function capitulos6y7() {
   c.push(U.p('Cumplido. El diseño del Capítulo V comprende la arquitectura de la solución con su justificación frente a las restricciones del entorno, la estrategia de operación sin conexión con sus cuatro decisiones fundamentales, el modelo de datos desde el plano conceptual hasta el físico con su diccionario y sus reglas de integridad, el diseño de interfaz derivado de las condiciones de campo y el diseño de los controles de seguridad.'));
 
   c.push(U.h2('7.1.3.', 'Objetivo específico 3: construir los módulos'));
-  c.push(U.p('Cumplido parcialmente. Se construyeron y verificaron los módulos de identidad y accesos, de inventario y trazabilidad, y el motor de sincronización, que constituyen el Incremento 1 completo y la parte de inventario del Incremento 2. Los módulos de sanidad, pesaje, reproducción, comercialización y reportes cuentan con su diseño completo y su construcción corresponde a la continuación del cronograma.'));
+  c.push(U.p('Cumplido parcialmente. Se construyeron y verificaron los módulos de identidad y accesos, de inventario y trazabilidad, el motor de sincronización, el historial sanitario con su calendario de alertas y la estimación morfométrica del peso. Ello constituye los Incrementos 1 y 2 completos y el componente central del Incremento 3. Los módulos de reproducción, comercialización, evaluación ponderada para la venta y reportes consolidados cuentan con su diseño completo y su construcción corresponde a la continuación del cronograma.'));
   c.push(U.p('El avance alcanzado cubre precisamente los componentes de mayor riesgo técnico del sistema: la operación sin conexión y la consolidación de datos divergentes. Los módulos restantes, aunque más numerosos, presentan una complejidad técnica menor por apoyarse sobre la infraestructura ya construida y verificada.'));
 
   c.push(U.h2('7.1.4.', 'Objetivo específico 4: evaluar el sistema'));
-  c.push(U.p('Cumplido parcialmente. La evaluación funcional y técnica del código construido está ejecutada y documentada en la sección 6.5, con veintiún escenarios verificados. La evaluación de usuario mediante la escala de usabilidad y la validación de la precisión de la estimación de peso corresponden a los incrementos en curso.'));
+  c.push(U.p('Cumplido parcialmente. La evaluación funcional y técnica del código construido está ejecutada y documentada en la sección 6.5, con ciento veintiséis pruebas automatizadas y veinticinco escenarios verificados sobre el sistema en funcionamiento. La evaluación de usuario mediante la escala de usabilidad y la validación de la precisión de la estimación de peso corresponden a los incrementos en curso.'));
 
   // --- 7.2 ---
   c.push(U.h1('7.2.', 'Evaluación de la calidad de la solución'));

@@ -26,21 +26,20 @@ class _ListaAnimalesScreenState extends ConsumerState<ListaAnimalesScreen> {
     super.dispose();
   }
 
+  /// Consolida todo lo que el dispositivo tiene pendiente.
+  ///
+  /// Para el usuario sincronizar es una sola acción, de modo que el botón
+  /// consolida el inventario, los pesajes y la sanidad en una pasada, en el
+  /// orden que exigen sus dependencias.
   Future<void> _sincronizar() async {
     setState(() => _sincronizando = true);
-    final resultado =
-        await ref.read(animalesRepositoryProvider).sincronizar();
+    final resultado = await ref.read(sincronizacionProvider).ejecutar();
     if (!mounted) return;
     setState(() => _sincronizando = false);
 
-    final mensaje = resultado.exitoso
-        ? 'Sincronizado: ${resultado.enviados} enviados, '
-            '${resultado.recibidos} recibidos'
-        : resultado.error!;
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(mensaje),
+        content: Text(resultado.resumen),
         backgroundColor: resultado.exitoso
             ? null
             : Theme.of(context).colorScheme.errorContainer,
@@ -85,6 +84,9 @@ class _ListaAnimalesScreenState extends ConsumerState<ListaAnimalesScreen> {
                 : const Icon(Icons.sync),
             onPressed: _sincronizando ? null : _sincronizar,
             tooltip: 'Sincronizar',
+          ),
+          _BotonAlertas(
+            abiertas: ref.watch(alertasProvider).valueOrNull ?? const [],
           ),
           IconButton(
             icon: const Icon(Icons.logout),
@@ -219,16 +221,75 @@ class _ChipFase extends StatelessWidget {
       );
 }
 
-class _TarjetaAnimal extends StatelessWidget {
+/// Acceso al calendario sanitario con el número de tareas abiertas.
+///
+/// El contador distingue las atrasadas: un «3» en rojo significa que hay
+/// animales sin atender desde hace días, y es distinto de un «3» que son
+/// tareas de la semana próxima.
+class _BotonAlertas extends StatelessWidget {
+  const _BotonAlertas({required this.abiertas});
+
+  final List<AlertaConAnimal> abiertas;
+
+  @override
+  Widget build(BuildContext context) {
+    final vencidas =
+        abiertas.where((a) => a.alerta.estado == 'vencida').length;
+
+    final boton = IconButton(
+      icon: const Icon(Icons.event_note_outlined),
+      tooltip: 'Calendario sanitario',
+      onPressed: () => context.push('/animales/alertas'),
+    );
+
+    if (abiertas.isEmpty) return boton;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        boton,
+        Positioned(
+          top: 8,
+          right: 6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            constraints: const BoxConstraints(minWidth: 18),
+            decoration: BoxDecoration(
+              color: vencidas > 0
+                  ? Theme.of(context).colorScheme.error
+                  : const Color(0xFFEF6C00),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Text(
+              '${abiertas.length}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TarjetaAnimal extends ConsumerWidget {
   const _TarjetaAnimal({required this.animal});
 
   final Animal animal;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final esquema = Theme.of(context).colorScheme;
     final pendiente = animal.estadoSync == 'pendiente';
     final conflicto = animal.estadoSync == 'conflicto';
+
+    // El último peso llega de un único mapa para toda la lista, no de una
+    // consulta por fila.
+    final peso = ref.watch(ultimoPesoProvider).valueOrNull?[animal.idAnimal];
 
     return Card(
       child: InkWell(
@@ -263,6 +324,17 @@ class _TarjetaAnimal extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
+                        if (peso != null) ...[
+                          const Spacer(),
+                          Text(
+                            '${peso.toStringAsFixed(0)} kg',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: esquema.primary,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 6),

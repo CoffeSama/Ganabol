@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
-import 'package:ulid/ulid.dart';
 
 import '../local/database.dart';
 import '../remote/api_client.dart';
+import '../../domain/identificadores.dart';
+import '../../domain/fechas.dart';
 import '../../domain/models/enums.dart';
 
 /// Resultado de una pasada de sincronización, para informar al usuario.
@@ -59,7 +60,7 @@ class AnimalesRepository {
     DateTime? fechaNacimiento,
     String? idPotrero,
   }) async {
-    final idAnimal = Ulid().toString();
+    final idAnimal = nuevoIdentificador();
 
     await _db.guardarAnimal(
       AnimalesCompanion.insert(
@@ -168,7 +169,7 @@ class AnimalesRepository {
 
       final codigo = respuesta.statusCode ?? 0;
 
-      if (codigo >= 200 && codigo < 300) {
+      if (esSatisfactoria(codigo)) {
         await _db.marcarSincronizado(animal.idAnimal);
         enviados++;
       } else if (codigo == 409) {
@@ -190,7 +191,7 @@ class AnimalesRepository {
       queryParameters: {'desde': desde.toUtc().toIso8601String()},
     );
 
-    if (respuesta.statusCode != 200 || respuesta.data == null) return 0;
+    if (!esSatisfactoria(respuesta.statusCode) || respuesta.data == null) return 0;
 
     final lista = (respuesta.data!['animales'] as List<dynamic>? ?? [])
         .cast<Map<String, dynamic>>();
@@ -212,8 +213,7 @@ class AnimalesRepository {
         if (a.raza != null) 'raza': a.raza,
         'sexo': a.sexo,
         if (a.fechaNacimiento != null)
-          'fechaNacimiento':
-              a.fechaNacimiento!.toIso8601String().split('T').first,
+          'fechaNacimiento': diaAJson(a.fechaNacimiento!),
         'fase': a.fase,
         'estado': a.estado,
         if (a.idPotrero != null) 'idPotrero': a.idPotrero,
@@ -229,9 +229,7 @@ class AnimalesRepository {
         fase: json['fase'] as String,
         raza: Value(json['raza'] as String?),
         idPotrero: Value(json['idPotrero'] as String?),
-        fechaNacimiento: Value(json['fechaNacimiento'] == null
-            ? null
-            : DateTime.parse(json['fechaNacimiento'] as String)),
+        fechaNacimiento: Value(diaDesdeJsonONulo(json['fechaNacimiento'])),
         estado: Value(json['estado'] as String? ?? 'activo'),
         creadoEn: Value(DateTime.parse(json['creadoEn'] as String)),
         actualizadoEn: Value(DateTime.parse(json['actualizadoEn'] as String)),

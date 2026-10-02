@@ -31,7 +31,11 @@ class AuthRepository {
       if (respuesta.statusCode == 401) {
         return const ResultadoLogin(error: 'Correo o contraseña incorrectos');
       }
-      if (respuesta.statusCode != 200 || respuesta.data == null) {
+      // Se admite cualquier respuesta satisfactoria, no solo el 200 exacto:
+      // el marco del servidor responde 201 a las peticiones POST por omisión,
+      // y exigir un código concreto hacía que una autenticación válida se
+      // descartara como fallida.
+      if (!esSatisfactoria(respuesta.statusCode) || respuesta.data == null) {
         return const ResultadoLogin(error: 'No se pudo iniciar sesión');
       }
 
@@ -60,7 +64,7 @@ class AuthRepository {
     try {
       final respuesta =
           await _api.dio.get<Map<String, dynamic>>('/auth/perfil');
-      if (respuesta.statusCode != 200 || respuesta.data == null) return null;
+      if (!esSatisfactoria(respuesta.statusCode) || respuesta.data == null) return null;
       return Usuario.desdeJson(respuesta.data!);
     } on DioException catch (_) {
       return null;

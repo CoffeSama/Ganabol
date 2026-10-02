@@ -87,6 +87,52 @@ enum EstadoSync {
       .firstWhere((e) => e.valor == v, orElse: () => EstadoSync.pendiente);
 }
 
+/// Tipos de evento sanitario que se registran por animal.
+enum TipoEventoSanitario {
+  vacunacion('vacunacion', 'Vacunación'),
+  desparasitacion('desparasitacion', 'Desparasitación'),
+  tratamiento('tratamiento', 'Tratamiento'),
+  diagnostico('diagnostico', 'Diagnóstico');
+
+  const TipoEventoSanitario(this.valor, this.etiqueta);
+  final String valor;
+  final String etiqueta;
+
+  static TipoEventoSanitario desde(String v) => TipoEventoSanitario.values
+      .firstWhere((e) => e.valor == v, orElse: () => TipoEventoSanitario.tratamiento);
+
+  /// Un diagnóstico se registra porque ocurrió, no porque estuviera previsto,
+  /// de modo que no cierra ninguna tarea del calendario.
+  bool get cumpleProtocolo => this != TipoEventoSanitario.diagnostico;
+}
+
+enum TipoAlerta {
+  sanitaria('sanitaria', 'Sanitaria'),
+  reproductiva('reproductiva', 'Reproductiva');
+
+  const TipoAlerta(this.valor, this.etiqueta);
+  final String valor;
+  final String etiqueta;
+
+  static TipoAlerta desde(String v) => TipoAlerta.values
+      .firstWhere((e) => e.valor == v, orElse: () => TipoAlerta.sanitaria);
+}
+
+enum EstadoAlerta {
+  pendiente('pendiente', 'Pendiente'),
+  atendida('atendida', 'Atendida'),
+  vencida('vencida', 'Vencida');
+
+  const EstadoAlerta(this.valor, this.etiqueta);
+  final String valor;
+  final String etiqueta;
+
+  static EstadoAlerta desde(String v) => EstadoAlerta.values
+      .firstWhere((e) => e.valor == v, orElse: () => EstadoAlerta.pendiente);
+
+  bool get estaAbierta => this != EstadoAlerta.atendida;
+}
+
 enum Rol {
   administrador('administrador', 'Administrador'),
   personalCampo('personal_campo', 'Personal de campo'),
@@ -103,6 +149,15 @@ enum Rol {
   /// El veterinario consulta el hato y registra eventos sanitarios, pero no
   /// da de alta ni modifica animales.
   bool get puedeEditarAnimales => this != Rol.veterinario;
+
+  /// El pesaje lo toma quien está con el animal: personal de campo,
+  /// propietario o administrador. El veterinario atiende la sanidad.
+  bool get puedeRegistrarPesajes => this != Rol.veterinario;
+
+  /// La sanidad la registran todos los roles: el personal de campo aplica la
+  /// mayoría de las vacunas de rutina en un establecimiento sin veterinario
+  /// de planta, que es la situación habitual en la zona.
+  bool get puedeRegistrarSanidad => true;
 }
 
 class Usuario {

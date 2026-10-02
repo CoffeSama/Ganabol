@@ -2,6 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/config/app_config.dart';
 
+/// Indica si un código de estado representa una respuesta satisfactoria.
+///
+/// Comprobar el rango y no un código concreto evita un error sutil: el marco
+/// del servidor responde 201 a las peticiones POST por omisión, de modo que
+/// exigir un 200 exacto descarta como fallida una operación que sí ocurrió.
+bool esSatisfactoria(int? codigo) =>
+    codigo != null && codigo >= 200 && codigo < 300;
+
 /// Cliente HTTP de la aplicación.
 ///
 /// Adjunta el token de acceso a cada petición y, cuando el servidor responde

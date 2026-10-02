@@ -4,6 +4,9 @@ import '../../data/local/database.dart';
 import '../../data/remote/api_client.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/animales_repository.dart';
+import '../../data/repositories/pesajes_repository.dart';
+import '../../data/repositories/sanidad_repository.dart';
+import '../../data/repositories/sincronizacion.dart';
 import '../../domain/models/enums.dart';
 
 // --- Infraestructura --------------------------------------------------------
@@ -27,6 +30,32 @@ final animalesRepositoryProvider = Provider<AnimalesRepository>(
   (ref) => AnimalesRepository(
     ref.watch(baseDatosProvider),
     ref.watch(apiClientProvider),
+  ),
+);
+
+final pesajesRepositoryProvider = Provider<PesajesRepository>(
+  (ref) => PesajesRepository(
+    ref.watch(baseDatosProvider),
+    ref.watch(apiClientProvider),
+    ref.watch(animalesRepositoryProvider),
+  ),
+);
+
+final sanidadRepositoryProvider = Provider<SanidadRepository>(
+  (ref) => SanidadRepository(
+    ref.watch(baseDatosProvider),
+    ref.watch(apiClientProvider),
+    ref.watch(animalesRepositoryProvider),
+  ),
+);
+
+/// Consolidación de todas las entidades en el orden que exigen sus
+/// dependencias. Es la que usa el botón de sincronizar de la interfaz.
+final sincronizacionProvider = Provider<Sincronizacion>(
+  (ref) => Sincronizacion(
+    ref.watch(animalesRepositoryProvider),
+    ref.watch(pesajesRepositoryProvider),
+    ref.watch(sanidadRepositoryProvider),
   ),
 );
 
@@ -134,3 +163,42 @@ final pendientesProvider = StreamProvider<int>((ref) async* {
     yield await repo.contarPendientes();
   }
 });
+
+// --- Pesaje -----------------------------------------------------------------
+
+/// Historial de pesos de un animal con su ganancia media diaria.
+final pesajesProvider =
+    StreamProvider.family<List<PesajeConGanancia>, String>(
+  (ref, idAnimal) =>
+      ref.watch(pesajesRepositoryProvider).observarConGanancia(idAnimal),
+);
+
+/// Último peso estimado de cada animal, indexado por identificador, para
+/// mostrarlo en la lista del hato sin consultar por fila.
+final ultimoPesoProvider = StreamProvider<Map<String, double>>(
+  (ref) => ref.watch(pesajesRepositoryProvider).observarUltimoPeso(),
+);
+
+// --- Sanidad ----------------------------------------------------------------
+
+final eventosProvider =
+    StreamProvider.family<List<EventoSanitario>, String>(
+  (ref, idAnimal) =>
+      ref.watch(sanidadRepositoryProvider).observarEventos(idAnimal),
+);
+
+final planesProvider = StreamProvider<List<PlanSanitario>>(
+  (ref) => ref.watch(sanidadRepositoryProvider).observarPlanes(),
+);
+
+/// Protocolos aplicables a un animal, para el formulario de evento sanitario.
+final planesParaAnimalProvider =
+    StreamProvider.family<List<PlanSanitario>, Animal>(
+  (ref, animal) =>
+      ref.watch(sanidadRepositoryProvider).observarPlanesPara(animal),
+);
+
+/// Alertas abiertas del calendario, de la más urgente a la menos urgente.
+final alertasProvider = StreamProvider<List<AlertaConAnimal>>(
+  (ref) => ref.watch(sanidadRepositoryProvider).observarAlertas(),
+);

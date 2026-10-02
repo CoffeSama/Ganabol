@@ -10,6 +10,9 @@ import 'presentation/auth/login_screen.dart';
 import 'presentation/animales/lista_animales_screen.dart';
 import 'presentation/animales/detalle_animal_screen.dart';
 import 'presentation/animales/formulario_animal_screen.dart';
+import 'presentation/pesaje/formulario_pesaje_screen.dart';
+import 'presentation/sanidad/alertas_screen.dart';
+import 'presentation/sanidad/formulario_evento_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +73,10 @@ class GanaBolApp extends ConsumerWidget {
                 builder: (context, estado) => const FormularioAnimalScreen(),
               ),
               GoRoute(
+                path: 'alertas',
+                builder: (context, estado) => const AlertasScreen(),
+              ),
+              GoRoute(
                 path: ':id',
                 builder: (context, estado) => DetalleAnimalScreen(
                   animalId: estado.pathParameters['id']!,
@@ -79,6 +86,22 @@ class GanaBolApp extends ConsumerWidget {
                     path: 'editar',
                     builder: (context, estado) => FormularioAnimalScreen(
                       animalId: estado.pathParameters['id']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'pesaje/nuevo',
+                    builder: (context, estado) => FormularioPesajeScreen(
+                      animalId: estado.pathParameters['id']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'sanidad/nuevo',
+                    builder: (context, estado) => FormularioEventoScreen(
+                      animalId: estado.pathParameters['id']!,
+                      // La bandeja de alertas llega con el protocolo ya
+                      // elegido, para que el personal no tenga que volver a
+                      // indicar qué venía a aplicar.
+                      idPlanSugerido: estado.uri.queryParameters['plan'],
                     ),
                   ),
                 ],
