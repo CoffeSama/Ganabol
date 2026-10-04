@@ -39,7 +39,7 @@ module.exports = function capitulo3() {
   c.push(U.p('La unidad de análisis es la explotación ganadera bovina tradicional del departamento de Santa Cruz, orientada a las etapas de crianza, destete y engorde, y en particular el proceso de gestión de la información productiva y sanitaria dentro de ella.'));
 
   c.push(U.h2('3.3.2.', 'Población y muestra'));
-  c.push(U.p('La población objetivo está constituida por los productores ganaderos del departamento de Santa Cruz dedicados a explotaciones tradicionales orientadas a las etapas de crianza, destete y engorde de ganado bovino. Por la naturaleza dispersa de la población y la inexistencia de un marco muestral oficial actualizado, se aplica un muestreo no probabilístico de tipo intencional para las distintas técnicas.'));
+  c.push(U.p('La población objetivo está constituida por los productores ganaderos del departamento de Santa Cruz dedicados a explotaciones tradicionales orientadas a las etapas de crianza, destete y engorde de ganado bovino. Por la naturaleza dispersa de la población y la inexistencia de un marco muestral oficial actualizado, se aplica un muestreo no probabilístico de tipo intencional para las distintas técnicas. El Cuadro 3.1 detalla la muestra de cada una y el criterio con que fue seleccionada.'));
   c.push(...U.cuadro('3.1', 'Muestras por técnica de recolección y criterio de selección',
     ['Técnica', 'Muestra', 'Criterio de selección'],
     [
@@ -54,6 +54,7 @@ module.exports = function capitulo3() {
   c.push(U.p('El diagnóstico organiza la información en cinco dimensiones: el perfil del productor y del predio, las prácticas actuales de registro y control, las problemáticas operativas, la disposición y las barreras hacia la adopción tecnológica, y los requisitos de usabilidad percibida. La evaluación del sistema, por su parte, opera sobre las características de calidad de la norma ISO/IEC 25010, según se detalla en el Capítulo VII.'));
 
   c.push(U.h2('3.3.4.', 'Indicadores de evaluación'));
+  c.push(U.p('Los indicadores con que se evalúa el sistema se enuncian junto a su criterio de aceptación, de modo que el resultado pueda contrastarse sin ambigüedad. El Cuadro 3.2 los reúne con el instrumento que los mide.'));
   c.push(...U.cuadro('3.2', 'Indicadores de evaluación del sistema y su criterio de aceptación',
     ['Indicador', 'Instrumento', 'Criterio de aceptación'],
     [

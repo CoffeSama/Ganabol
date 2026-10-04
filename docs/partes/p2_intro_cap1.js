@@ -49,7 +49,7 @@ module.exports = function introYCapitulo1() {
   c.push(U.p('Las explotaciones de la zona se caracterizan por superficies extensas, conectividad escasa y condiciones climáticas que dificultan el acceso permanente a los predios. El productor trabaja a la intemperie, con las manos ocupadas, y registra los datos en el momento en que ocurren los hechos: durante la vacunación, al medir un animal, al detectar una enfermedad. Cualquier herramienta que no funcione en esas condiciones queda sin uso.'));
 
   c.push(U.h2('1.2.2.', 'Actores involucrados'));
-  c.push(U.p('En la operación del establecimiento ganadero intervienen cuatro actores con responsabilidades diferenciadas, que el sistema debe reconocer y delimitar mediante permisos distintos:'));
+  c.push(U.p('En la operación del establecimiento ganadero intervienen cuatro actores con responsabilidades diferenciadas, que el sistema debe reconocer y delimitar mediante permisos distintos. El Cuadro 1.1 los identifica junto con la responsabilidad que asume cada uno.'));
   c.push(...U.cuadro('1.1', 'Actores involucrados en la gestión del establecimiento ganadero',
     ['Actor', 'Responsabilidad principal', 'Relación con la información'],
     [
@@ -74,6 +74,13 @@ module.exports = function introYCapitulo1() {
   c.push(U.p('Estas deficiencias convergen en cuatro problemas centrales: la ausencia de trazabilidad individual del ganado, la desactualización crónica de los registros, la falta de herramientas de apoyo a la comercialización y la imposibilidad de usar las soluciones existentes por la restricción de conectividad.'));
 
   // --- 1.3 Objeto de estudio y formulación ---
+  c.push(U.h2('1.2.6.', 'Árbol del problema'));
+  c.push(U.p('Las deficiencias descritas no son independientes entre sí: unas originan a otras, y todas convergen en un problema central del que se desprenden consecuencias económicas y sanitarias concretas. La Figura 1.1 ordena esa relación en los cuatro niveles habituales del análisis, de las causas raíz a los efectos.'));
+  c.push(...U.figura('arbol-problema.png', '1.1', 'Árbol del problema de la gestión del ganado bovino en explotaciones tradicionales',
+    'Elaboración propia, 2026, a partir del diagnóstico aplicado a productores de Pailón, Abapó y San Julián.',
+    { anchoMax: 600 }));
+  c.push(U.p('La lectura del árbol de abajo hacia arriba explica por qué una solución parcial no resuelve el problema. Digitalizar el registro sin que funcione sin conexión deja intacta la causa raíz de la cuarta columna; incorporar conectividad sin resolver la estimación del peso deja intacta la de la tercera. El sistema que este proyecto propone actúa sobre las cuatro causas a la vez, y esa simultaneidad es lo que define su alcance.'));
+
   c.push(U.h1('1.3.', 'Objeto de estudio y formulación del problema'));
 
   c.push(U.h2('1.3.1.', 'Objeto de estudio'));

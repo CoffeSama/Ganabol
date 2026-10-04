@@ -65,7 +65,7 @@ module.exports = function capitulo4() {
   c.push(U.h1('4.2.', 'Diagnóstico del proceso actual'));
 
   c.push(U.h2('4.2.1.', 'Inventario de procesos'));
-  c.push(U.p('El análisis identificó nueve procesos de negocio que el sistema debe soportar. Cada uno tiene un disparador propio, un resultado verificable y una frecuencia característica que condiciona las prioridades de diseño: un proceso que ocurre varias veces al día impone exigencias de rapidez que uno mensual no impone.'));
+  c.push(U.p('El análisis identificó nueve procesos de negocio que el sistema debe soportar. Cada uno tiene un disparador propio, un resultado verificable y una frecuencia característica que condiciona las prioridades de diseño: un proceso que ocurre varias veces al día impone exigencias de rapidez que uno mensual no impone. El Cuadro 4.1 los inventaria con su disparador, su resultado verificable y su frecuencia.'));
   {
     const t = F.tabla('procesos', 'Cuadro 1. Inventario de procesos del sistema');
     c.push(...U.cuadro('4.1', 'Inventario de procesos del negocio ganadero',
@@ -75,7 +75,7 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.2.2.', 'Diagramas de flujo de los procesos'));
-  c.push(U.p('Los procesos se representan mediante diagramas de flujo con carriles funcionales, notación que permite ver simultáneamente la secuencia de actividades y el actor responsable de cada una. La distinción importa en este dominio: buena parte de las dificultades operativas proviene de que la información se genera en un rol y se necesita en otro.'));
+  c.push(U.p('Los procesos se representan mediante diagramas de flujo con carriles funcionales, notación que permite ver simultáneamente la secuencia de actividades y el actor responsable de cada una. La distinción importa en este dominio: buena parte de las dificultades operativas proviene de que la información se genera en un rol y se necesita en otro. Las Figuras 4.1 a 4.9 recogen un diagrama por proceso, en el mismo orden del inventario anterior.'));
 
   PROCESOS.forEach(([codigo, titulo, imagen], i) => {
     c.push(U.h3(`4.2.2.${i + 1}.`, `Proceso ${codigo}. ${titulo}`));
@@ -100,6 +100,7 @@ module.exports = function capitulo4() {
   c.push(U.vinheta('**Conectividad insuficiente.** La intermitencia de la señal impide el uso de las aplicaciones existentes, lo que explica que ninguno de los encuestados emplee una herramienta digital pese a disponer del dispositivo.'));
 
   c.push(U.h2('4.2.5.', 'Indicadores de la situación actual'));
+  c.push(U.p('El diagnóstico cuantificó la situación de partida sobre cinco indicadores, cada uno con una implicación directa sobre el diseño. El Cuadro 4.2 los reúne con el valor relevado y la consecuencia que de él se desprende.'));
   c.push(...U.cuadro('4.2', 'Indicadores del proceso actual relevados en el diagnóstico',
     ['Indicador', 'Valor relevado', 'Implicación para el diseño'],
     [
@@ -118,6 +119,7 @@ module.exports = function capitulo4() {
   c.push(U.h1('4.3.', 'Análisis de usuarios y partes interesadas'));
 
   c.push(U.h2('4.3.1.', 'Identificación de usuarios'));
+  c.push(U.p('El sistema reconoce cuatro tipos de usuario, que se corresponden con los actores identificados en el diagnóstico del proceso actual. El Cuadro 4.3 precisa la responsabilidad de cada uno dentro del sistema.'));
   {
     const t = F.tabla('srs', 'Cuadro 2. Actores del sistema y su responsabilidad');
     c.push(...U.cuadro('4.3', 'Actores del sistema y su responsabilidad',
@@ -127,7 +129,7 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.3.2.', 'Perfil de los usuarios'));
-  c.push(U.p('El perfil condiciona el diseño de la interfaz más que cualquier otra variable. El personal de campo, que es quien más usa el sistema, es también quien menos conocimiento informático tiene; de ahí que las pantallas de registro sean las más simples del sistema y las de administración las únicas que admiten densidad.'));
+  c.push(U.p('El perfil condiciona el diseño de la interfaz más que cualquier otra variable. El personal de campo, que es quien más usa el sistema, es también quien menos conocimiento informático tiene; de ahí que las pantallas de registro sean las más simples del sistema y las de administración las únicas que admiten densidad. El Cuadro 4.4 reúne el perfil de cada tipo de usuario previsto.'));
   {
     const t = F.tabla('srs', 'Cuadro 4. Perfil de los usuarios previstos');
     c.push(...U.cuadro('4.4', 'Perfil de los usuarios previstos',
@@ -136,7 +138,7 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.3.3.', 'Necesidades de los usuarios'));
-  c.push(U.p('Las necesidades se enuncian en el lenguaje del negocio ganadero, sin comprometer una solución técnica, y se identifican con el prefijo UR. Cada una se traduce después en uno o más requisitos de software, según establece la matriz de trazabilidad de la sección 4.6.6.'));
+  c.push(U.p('Las necesidades se enuncian en el lenguaje del negocio ganadero, sin comprometer una solución técnica, y se identifican con el prefijo UR. Cada una se traduce después en uno o más requisitos de software, según establece la matriz de trazabilidad de la sección 4.6.6. El Cuadro 4.5 las enumera con la prioridad que les asignó el diagnóstico.'));
   {
     const t = F.tabla('srs', 'Cuadro 3. Necesidades de los usuarios');
     c.push(...U.cuadro('4.5', 'Necesidades de los usuarios',
@@ -150,6 +152,7 @@ module.exports = function capitulo4() {
     .forEach((t) => c.push(U.vinheta(t)));
 
   c.push(U.h2('4.3.5.', 'Matriz de partes interesadas'));
+  c.push(U.p('Más allá de quienes operan el sistema, hay partes interesadas que condicionan su adopción sin usarlo directamente. El Cuadro 4.6 las sitúa según su interés en el proyecto y su capacidad de influir sobre él.'));
   c.push(...U.cuadro('4.6', 'Matriz de partes interesadas',
     ['Parte interesada', 'Interés en el proyecto', 'Influencia', 'Estrategia de involucramiento'],
     [
@@ -166,7 +169,7 @@ module.exports = function capitulo4() {
   c.push(U.h1('4.4.', 'Requisitos funcionales'));
 
   c.push(U.h2('4.4.1.', 'Identificación de módulos'));
-  c.push(U.p('Los requisitos funcionales se agrupan en módulos que corresponden a los dominios del negocio ganadero. Esta modularidad no es una comodidad de redacción: determina la organización del código del servicio central, donde cada módulo encapsula sus controladores, servicios y repositorios, y determina también el orden de construcción, porque las dependencias entre módulos fijan qué puede implementarse antes.'));
+  c.push(U.p('Los requisitos funcionales se agrupan en módulos que corresponden a los dominios del negocio ganadero. Esta modularidad no es una comodidad de redacción: determina la organización del código del servicio central, donde cada módulo encapsula sus controladores, servicios y repositorios, y determina también el orden de construcción, porque las dependencias entre módulos fijan qué puede implementarse antes. El Cuadro 4.7 presenta esa agrupación con los requisitos que comprende cada módulo.'));
   c.push(...U.cuadro('4.7', 'Módulos funcionales del sistema y requisitos que comprenden',
     ['Módulo', 'Requisitos', 'Propósito'],
     [
@@ -176,14 +179,14 @@ module.exports = function capitulo4() {
       ['Pesaje', 'RF4', 'Estimación morfométrica e historial de pesos'],
       ['Sanidad', 'RF5, RF13', 'Eventos sanitarios y alertas del calendario'],
       ['Reproducción', 'RF14', 'Servicios, preñez, partos y fecha probable de parto'],
-      ['Nutrición', 'RF7', 'Referencia nutricional por raza y categoría'],
+      ['Nutrición', 'RF7', 'Referencia nutricional por raza y categoría, según los requerimientos del National Research Council (2016)'],
       ['Comercialización', 'RF9, RF15', 'Registro de ventas y evaluación ponderada para la selección'],
       ['Reportes', 'RF11, RF12', 'Estado del hato y reportes exportables'],
     ],
     'Elaboración propia, 2026.', [0.24, 0.2, 0.56]));
 
   c.push(U.h2('4.4.2.', 'Especificación de los requisitos funcionales'));
-  c.push(U.p('Cada requisito se describe mediante una ficha que indica su código, su nombre, su descripción, sus entradas, el proceso que ejecuta, sus salidas, su prioridad, el criterio con que se verificará su cumplimiento y la necesidad de usuario de la que proviene. El criterio de verificación es el elemento que convierte el requisito en comprobable: sin él, el cumplimiento quedaría sujeto a interpretación.'));
+  c.push(U.p('Cada requisito se describe mediante una ficha que indica su código, su nombre, su descripción, sus entradas, el proceso que ejecuta, sus salidas, su prioridad, el criterio con que se verificará su cumplimiento y la necesidad de usuario de la que proviene. El criterio de verificación es el elemento que convierte el requisito en comprobable: sin él, el cumplimiento quedaría sujeto a interpretación. Los Cuadros 4.8 a 4.22 contienen las quince fichas, en el orden en que se identifican los requisitos.'));
 
   REQUISITOS.forEach((titulo, i) => {
     const num = i + 1;
@@ -195,7 +198,7 @@ module.exports = function capitulo4() {
   });
 
   c.push(U.h2('4.4.3.', 'Reglas de negocio'));
-  c.push(U.p('Las reglas de negocio son condiciones del dominio ganadero que el sistema debe hacer cumplir con independencia de la pantalla desde la que se opere. Se derivan de los procesos documentados en la sección 4.2 y de las entrevistas con los especialistas del sector.'));
+  c.push(U.p('Las reglas de negocio son condiciones del dominio ganadero que el sistema debe hacer cumplir con independencia de la pantalla desde la que se opere. Se derivan de los procesos documentados en la sección 4.2 y de las entrevistas con los especialistas del sector. El Cuadro 4.23 las enuncia con el requisito sobre el que operan.'));
   c.push(...U.cuadro('4.23', 'Reglas de negocio del sistema',
     ['Código', 'Regla', 'Origen'],
     [
@@ -220,7 +223,7 @@ module.exports = function capitulo4() {
 
   // --- 4.5 ---
   c.push(U.h1('4.5.', 'Requisitos no funcionales'));
-  c.push(U.p('Los requisitos no funcionales se organizan según las características del modelo de calidad de producto de la norma ISO/IEC 25010. Su formulación incluye una métrica de verificación, de modo que el cumplimiento pueda evaluarse con una medición y no con una apreciación.'));
+  c.push(U.p('Los requisitos no funcionales se organizan según las características del modelo de calidad de producto de la norma ISO/IEC 25010. Su formulación incluye una métrica de verificación, de modo que el cumplimiento pueda evaluarse con una medición y no con una apreciación. El Cuadro 4.24 los especifica con la métrica que permite verificar cada uno.'));
   {
     const t = F.tabla('srs', 'Cuadro 5. Requisitos no funcionales');
     c.push(...U.cuadro('4.24', 'Requisitos no funcionales según el modelo de calidad ISO/IEC 25010',
@@ -234,6 +237,7 @@ module.exports = function capitulo4() {
   c.push(U.h1('4.6.', 'Modelado de requisitos'));
 
   c.push(U.h2('4.6.1.', 'Actores del sistema'));
+  c.push(U.p('Los actores del modelo de casos de uso se derivan de los usuarios identificados en la sección 4.3, distinguiendo su tipo de participación. El Cuadro 4.25 los presenta con esa distinción.'));
   {
     const t = F.tabla('casosUso', 'Cuadro 1. Actores del sistema');
     c.push(...U.cuadro('4.25', 'Actores del sistema y su tipo de participación',
@@ -241,12 +245,13 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.6.2.', 'Diagrama de casos de uso'));
-  c.push(U.p('El diagrama general presenta los quince casos de uso del sistema y su relación con cada actor. Su lectura permite verificar que la cobertura funcional corresponde a los actores identificados y que ningún actor queda sin casos asociados.'));
+  c.push(U.p('El diagrama general presenta los quince casos de uso del sistema y su relación con cada actor. Su lectura permite verificar que la cobertura funcional corresponde a los actores identificados y que ningún actor queda sin casos asociados. La Figura 4.10 presenta ese diagrama.'));
   c.push(...U.figura('ace0bf388601354f0157ccddca4e5946a3ff771a.png', '4.10',
     'Diagrama de casos de uso del sistema',
     'Elaboración propia, 2026. Notación UML según Booch, Rumbaugh y Jacobson (2005).'));
 
   c.push(U.h2('4.6.3.', 'Resumen de los casos de uso'));
+  c.push(U.p('El Cuadro 4.26 resume los quince casos de uso con el actor que los inicia y el requisito funcional que realizan, de modo que la correspondencia entre ambos modelos quede a la vista.'));
   {
     const t = F.tabla('casosUso', 'Cuadro 2. Resumen de los casos de uso del sistema');
     c.push(...U.cuadro('4.26', 'Resumen de los casos de uso y su trazabilidad',
@@ -255,7 +260,7 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.6.4.', 'Especificación de los casos de uso críticos'));
-  c.push(U.p('Se detallan a continuación los tres casos de uso de mayor riesgo técnico o de mayor impacto sobre el negocio. El resto de las fichas, con idéntica estructura, se incorpora como apéndice del documento.'));
+  c.push(U.p('Se detallan a continuación los tres casos de uso de mayor riesgo técnico o de mayor impacto sobre el negocio. El resto de las fichas, con idéntica estructura, se incorpora como apéndice del documento. Los Cuadros 4.27 a 4.29 recogen sus fichas.'));
   CASOS_DETALLADOS.forEach(([marcador, codigo], i) => {
     const f = F.ficha('casosUso', `***${marcador}***`);
     const nombre = f.find(([k]) => /nombre/i.test(k))?.[1] ?? codigo;
@@ -266,7 +271,7 @@ module.exports = function capitulo4() {
   });
 
   c.push(U.h2('4.6.5.', 'Diagramas de actividades'));
-  c.push(U.p('Los diagramas de actividades representan el flujo de decisión de las dos operaciones de mayor complejidad lógica del sistema: el cálculo del peso a partir de las medidas y la consolidación con resolución de conflictos. A diferencia del diagrama de secuencia, que muestra qué componente llama a cuál, el de actividades muestra qué decide el sistema en cada punto.'));
+  c.push(U.p('Los diagramas de actividades representan el flujo de decisión de las dos operaciones de mayor complejidad lógica del sistema: el cálculo del peso a partir de las medidas y la consolidación con resolución de conflictos. A diferencia del diagrama de secuencia, que muestra qué componente llama a cuál, el de actividades muestra qué decide el sistema en cada punto. Las Figuras 4.11 y 4.12 representan respectivamente una y otra.'));
   c.push(...U.figura('80b4baf6233fc247fcff54d8ae2c7915fed97a32.png', '4.11',
     'Actividades de la estimación del peso',
     'Elaboración propia, 2026. Notación UML de diagrama de actividades.'));
@@ -275,7 +280,7 @@ module.exports = function capitulo4() {
     'Elaboración propia, 2026. Notación UML de diagrama de actividades.'));
 
   c.push(U.h2('4.6.6.', 'Modelo conceptual de datos'));
-  c.push(U.p('El modelo conceptual identifica las entidades del dominio con independencia de su implementación. Su desarrollo como modelo entidad-relación, con atributos, cardinalidades y normalización, se presenta en la sección 5.3 del capítulo siguiente.'));
+  c.push(U.p('El modelo conceptual identifica las entidades del dominio con independencia de su implementación. Su desarrollo como modelo entidad-relación, con atributos, cardinalidades y normalización, se presenta en la sección 5.3 del capítulo siguiente. El Cuadro 4.30 enumera las entidades identificadas con el papel que cumple cada una.'));
   {
     const t = F.tabla('entidadRelacion', 'Cuadro 1. Entidades del modelo conceptual');
     c.push(...U.cuadro('4.30', 'Entidades del modelo conceptual',
@@ -285,7 +290,7 @@ module.exports = function capitulo4() {
   }
 
   c.push(U.h2('4.6.7.', 'Matriz de trazabilidad de requisitos'));
-  c.push(U.p('La matriz vincula cada necesidad del usuario con el requisito de software que la satisface y con el caso de uso que la realiza. Su función es doble: garantiza que ninguna necesidad relevada quede sin atender, y garantiza que ninguna funcionalidad construida carezca de origen en una necesidad real. Toda funcionalidad del sistema es, por tanto, trazable hasta el diagnóstico de campo.'));
+  c.push(U.p('La matriz vincula cada necesidad del usuario con el requisito de software que la satisface y con el caso de uso que la realiza. Su función es doble: garantiza que ninguna necesidad relevada quede sin atender, y garantiza que ninguna funcionalidad construida carezca de origen en una necesidad real. Toda funcionalidad del sistema es, por tanto, trazable hasta el diagnóstico de campo. El Cuadro 4.31 presenta la matriz completa.'));
   {
     const t = F.tabla('srs', 'Cuadro 6. Matriz de trazabilidad de requisitos');
     c.push(...U.cuadro('4.31', 'Matriz de trazabilidad entre necesidades, requisitos y casos de uso',

@@ -107,7 +107,7 @@ module.exports = function capitulo2() {
   c.push(U.h2('2.4.4.', 'Justificación de la metodología elegida'));
   c.push(U.p('El proyecto adopta el modelo incremental por tres razones. La primera es la estructura de dependencias del sistema: no es posible implementar la estimación de peso sin contar antes con el registro de animales, ni activar la consolidación sin una capa previa de autenticación. Esta jerarquía natural hace que la construcción por incrementos no sea solo conveniente, sino necesaria.'));
   c.push(U.p('La segunda es el tamaño del equipo. El proyecto es desarrollado por una sola persona, lo que vuelve inaplicables las ceremonias y roles de Scrum sin incurrir en formalismo vacío. El modelo incremental conserva el beneficio de la entrega progresiva sin imponer esa estructura.'));
-  c.push(U.p('La tercera es la naturaleza de los requisitos. Los del primer incremento están bien definidos, pero el alcance total puede evolucionar conforme se valida con usuarios reales. Pressman y Maxim (2015) señalan precisamente esa condición como el escenario de aplicación del modelo incremental.'));
+  c.push(U.p('La tercera es la naturaleza de los requisitos. Los del primer incremento están bien definidos, pero el alcance total puede evolucionar conforme se valida con usuarios reales. Pressman y Maxim (2015) señalan precisamente esa condición como el escenario de aplicación del modelo incremental. El Cuadro 2.1 contrasta las tres metodologías consideradas frente a las condiciones concretas de este proyecto.'));
   c.push(...U.cuadro('2.1', 'Comparación de metodologías frente a las condiciones del proyecto',
     ['Criterio', 'Cascada', 'Scrum', 'Incremental'],
     [
@@ -167,6 +167,7 @@ module.exports = function capitulo2() {
   c.push(U.p('En el mercado regional existen plataformas de gestión ganadera orientadas al registro del inventario, el seguimiento sanitario y la generación de reportes productivos, entre ellas SIGGAN y BoviGest. Ambas resuelven la gestión del hato para explotaciones de escala considerable, con infraestructura tecnológica disponible y personal capacitado.'));
 
   c.push(U.h2('2.6.4.', 'Comparación de soluciones existentes'));
+  c.push(U.p('El Cuadro 2.2 contrasta las soluciones relevadas con la propuesta sobre los criterios que el contexto impone: la operación sin conexión, el costo de adopción y la adecuación a la escala de la explotación tradicional.'));
   c.push(...U.cuadro('2.2', 'Comparación de las soluciones existentes frente al sistema propuesto',
     ['Dimensión', 'Plataformas existentes', 'Sistema propuesto'],
     [

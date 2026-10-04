@@ -27,7 +27,7 @@ module.exports = function capitulo5() {
   c.push(U.p('Tres principios gobiernan la arquitectura. El primero es que la base de datos del dispositivo es la fuente primaria de lectura y escritura: ninguna pantalla espera a la red, y el servicio central actúa como punto de consolidación y no como requisito de operación. El segundo es la separación de la lógica de negocio respecto de los marcos y de los mecanismos de persistencia, de modo que las reglas del dominio ganadero —el cálculo del peso, la lógica de selección, la resolución de conflictos— puedan probarse de forma aislada. El tercero es que toda decisión que afecte a la integridad de los datos se resuelve de forma explícita y no por omisión.'));
 
   c.push(U.h2('5.1.2.', 'Arquitectura general del sistema'));
-  c.push(U.p('La solución se organiza en una aplicación móvil de captura en el campo, un servicio central que expone una interfaz de programación y persiste la información, y un panel administrativo de consulta. La comunicación entre los clientes y el servicio se realiza sobre HTTPS con intercambio de mensajes en formato JSON.'));
+  c.push(U.p('La solución se organiza en una aplicación móvil de captura en el campo, un servicio central que expone una interfaz de programación y persiste la información, y un panel administrativo de consulta. La comunicación entre los clientes y el servicio se realiza sobre HTTPS con intercambio de mensajes en formato JSON. El Cuadro 5.1 reúne cada capa con la tecnología elegida y el motivo de la elección.'));
   {
     const t = F.tabla('decisiones', 'Cuadro 1. Capas de la solución y su justificación');
     c.push(...U.cuadro('5.1', 'Capas de la solución y justificación de cada elección',
@@ -68,13 +68,14 @@ module.exports = function capitulo5() {
     .forEach((t) => c.push(U.p(t)));
   F.parrafos(F.seccion('decisiones', '4.3. Margen de error y validación', '5. SEGURIDAD'), { max: 2 })
     .forEach((t) => c.push(U.p(t)));
+  c.push(U.p('La Figura 5.1 traza la secuencia de la estimación, desde que el personal ingresa las medidas hasta que el peso queda registrado en el historial del animal.'));
   c.push(...U.figura('74976b77a6946fb41bd3a31b89ef184bdfe3e43c.png', '5.1',
     'Secuencia de la estimación del peso por método morfométrico',
     'Elaboración propia, 2026. Notación UML de diagrama de secuencia.'));
 
   c.push(U.h2('5.1.7.', 'Justificación de la arquitectura seleccionada'));
   c.push(U.p('La arquitectura adoptada responde a la restricción que define el problema: si la aplicación exigiera conexión, no sería utilizable en el entorno para el que se construye, y el proyecto perdería su razón de ser. Las alternativas descartadas lo fueron por esa misma razón. Una aplicación web que consulte siempre al servidor resulta más simple de construir, pero inoperante sin señal. Una aplicación que guarde localmente y sincronice con una política única de última escritura resulta más simple de sincronizar, pero admite que un registro de peso o un evento sanitario se pierda en silencio, lo que es inaceptable en este dominio.'));
-  c.push(U.p('El costo de la arquitectura elegida es la complejidad de la consolidación, y se asume de forma deliberada porque es el único camino que satisface simultáneamente la autonomía en campo y la integridad de la información.'));
+  c.push(U.p('El costo de la arquitectura elegida es la complejidad de la consolidación, y se asume de forma deliberada porque es el único camino que satisface simultáneamente la autonomía en campo y la integridad de la información. La Figura 5.2 traza la secuencia correspondiente.'));
   c.push(...U.figura('a4eec3283b6fded066327be99261acf655cf9c22.png', '5.2',
     'Secuencia de la sincronización y la resolución de conflictos',
     'Elaboración propia, 2026. Notación UML de diagrama de secuencia.'));
@@ -83,10 +84,11 @@ module.exports = function capitulo5() {
   c.push(U.h1('5.2.', 'Diseño de módulos y componentes'));
 
   c.push(U.h2('5.2.1.', 'Modelo de clases del dominio'));
-  c.push(U.p('El modelo de clases representa las entidades del dominio ganadero con sus atributos y sus relaciones, con independencia de la tecnología de persistencia. Constituye la capa más interna de la arquitectura y es la que menos cambia a lo largo de la vida del sistema.'));
+  c.push(U.p('El modelo de clases representa las entidades del dominio ganadero con sus atributos y sus relaciones, con independencia de la tecnología de persistencia. Constituye la capa más interna de la arquitectura y es la que menos cambia a lo largo de la vida del sistema. La Figura 5.3 presenta el diagrama de clases.'));
   c.push(...U.figura('c5175288991200b94ea245a4950ac69e1c4d4076.png', '5.3',
     'Diagrama de clases del sistema',
     'Elaboración propia, 2026. Notación UML según Booch, Rumbaugh y Jacobson (2005).'));
+  c.push(U.p('El Cuadro 5.2 enumera las clases del modelo con la responsabilidad que asume cada una.'));
   {
     const t = F.tabla('uml', 'Cuadro 2. Clases del modelo y su responsabilidad');
     c.push(...U.cuadro('5.2', 'Clases del modelo y su responsabilidad',
@@ -94,6 +96,7 @@ module.exports = function capitulo5() {
   }
 
   c.push(U.h2('5.2.2.', 'Asociaciones y multiplicidad'));
+  c.push(U.p('El Cuadro 5.3 detalla las asociaciones del modelo con su multiplicidad, que es lo que fija cuántas instancias de una clase pueden vincularse a cuántas de otra.'));
   {
     const t = F.tabla('uml', 'Cuadro 3. Asociaciones del modelo de clases');
     c.push(...U.cuadro('5.3', 'Asociaciones del modelo de clases y su multiplicidad',
@@ -119,10 +122,11 @@ module.exports = function capitulo5() {
   c.push(U.h1('5.3.', 'Diseño de la base de datos'));
 
   c.push(U.h2('5.3.1.', 'Modelo entidad-relación'));
-  c.push(U.p('El modelo entidad-relación representa las entidades del dominio, sus atributos y las relaciones entre ellas en el plano conceptual, antes de cualquier decisión sobre el gestor de base de datos.'));
+  c.push(U.p('El modelo entidad-relación representa las entidades del dominio, sus atributos y las relaciones entre ellas en el plano conceptual, antes de cualquier decisión sobre el gestor de base de datos. La Figura 5.4 lo representa.'));
   c.push(...U.figura('770ab90fe4d78f5e24e1fb9c2a14d4f7fdcba9ce.png', '5.4',
     'Diagrama entidad-relación del sistema',
     'Elaboración propia, 2026. Notación según Elmasri y Navathe (2016).'));
+  c.push(U.p('El Cuadro 5.4 precisa la cardinalidad de cada relación del modelo conceptual.'));
   {
     const t = F.tabla('entidadRelacion', 'Cuadro 3. Relaciones del modelo conceptual');
     c.push(...U.cuadro('5.4', 'Relaciones del modelo conceptual y su cardinalidad',
@@ -134,10 +138,11 @@ module.exports = function capitulo5() {
     .forEach((t) => c.push(U.p(t)));
 
   c.push(U.h2('5.3.3.', 'Modelo lógico: esquema relacional'));
-  c.push(U.p('La transformación del modelo conceptual produce el esquema relacional, en el que cada entidad se convierte en una tabla y cada relación en una clave foránea. El esquema comprende quince tablas. En el diagrama, la flecha se dirige desde la tabla referenciada hacia la que contiene la clave foránea, de modo que su sentido indica la dependencia de existencia entre ambas.'));
+  c.push(U.p('La transformación del modelo conceptual produce el esquema relacional, en el que cada entidad se convierte en una tabla y cada relación en una clave foránea. El esquema comprende quince tablas. En el diagrama, la flecha se dirige desde la tabla referenciada hacia la que contiene la clave foránea, de modo que su sentido indica la dependencia de existencia entre ambas. La Figura 5.5 presenta el esquema resultante.'));
   c.push(...U.figura('1d8c4372cde51599f02616de4347045c68f92324.png', '5.5',
     'Esquema relacional de la base de datos',
     'Elaboración propia, 2026. Notación de esquema relacional según Elmasri y Navathe (2016).'));
+  c.push(U.p('El diccionario de datos describe cada tabla con sus columnas, su tipo, sus restricciones y su significado. Los Cuadros 5.5 a 5.11 recogen las tablas del núcleo operativo; el diccionario completo de las quince se incorpora como apéndice.'));
 
   c.push(U.h2('5.3.4.', 'Modelo físico y diccionario de datos'));
   c.push(U.p('El gestor previsto en el servidor es PostgreSQL en su versión 16. El dispositivo replica el subconjunto operativo del esquema en SQLite, gestionado mediante Drift. El diccionario describe cada tabla con sus columnas, su tipo de dato, sus restricciones, su condición de nulidad y su significado; se indica con PK la clave primaria y con FK la clave foránea.'));
@@ -156,7 +161,7 @@ module.exports = function capitulo5() {
 
   c.push(U.h2('5.3.5.', 'Políticas de integridad y consistencia'));
   c.push(U.p('Cada tabla tiene una clave primaria de tipo ULID, no nula y única. La tabla de usuarios impone unicidad sobre el correo electrónico y la de animales sobre el número de caravana. La referencia nutricional impone unicidad sobre la combinación de raza y categoría, y el detalle de venta emplea una clave compuesta que impide duplicar un animal dentro de una misma venta.'));
-  c.push(U.p('En las tablas operativas las bajas se realizan de forma lógica mediante la marca de eliminación, de modo que el registro pueda propagarse a los dispositivos en lugar de desaparecer sin rastro. Esta decisión condiciona las reglas de borrado en cascada: la integridad referencial protege el historial en lugar de permitir su pérdida.'));
+  c.push(U.p('En las tablas operativas las bajas se realizan de forma lógica mediante la marca de eliminación, de modo que el registro pueda propagarse a los dispositivos en lugar de desaparecer sin rastro. Esta decisión condiciona las reglas de borrado en cascada: la integridad referencial protege el historial en lugar de permitir su pérdida. El Cuadro 5.12 las enumera con la regla de borrado que aplica a cada una.'));
   {
     const t = F.tabla('baseDatos', 'Cuadro 11. Restricciones referenciales');
     c.push(...U.cuadro('5.12', 'Restricciones referenciales del esquema',
@@ -197,7 +202,7 @@ module.exports = function capitulo5() {
   c.push(U.h1('5.5.', 'Diseño de seguridad'));
 
   c.push(U.h2('5.5.1.', 'Identificación de activos'));
-  c.push(U.p('Los activos que el sistema debe proteger son tres: las credenciales de acceso de los usuarios, la información productiva y sanitaria del establecimiento —que es información comercial sensible—, y la integridad del historial de cada animal, cuya alteración o pérdida tiene consecuencias económicas y sanitarias no reversibles.'));
+  c.push(U.p('Los activos que el sistema debe proteger son tres: las credenciales de acceso de los usuarios, la información productiva y sanitaria del establecimiento —que es información comercial sensible—, y la integridad del historial de cada animal, cuya alteración o pérdida tiene consecuencias económicas y sanitarias no reversibles. El Cuadro 5.13 las enumera con el control previsto para cada una.'));
 
   c.push(U.h2('5.5.2.', 'Análisis de amenazas'));
   c.push(...U.cuadro('5.13', 'Amenazas identificadas y controles previstos',
@@ -231,6 +236,7 @@ module.exports = function capitulo5() {
     .forEach((t) => c.push(U.p(t)));
 
   c.push(U.h2('5.6.2.', 'Requerimientos de hardware'));
+  c.push(U.p('El Cuadro 5.14 detalla el requerimiento de cada componente, tomando como referencia el equipamiento que el diagnóstico relevó en manos de los productores.'));
   c.push(...U.cuadro('5.14', 'Requerimientos de hardware por componente',
     ['Componente', 'Requerimiento mínimo', 'Justificación'],
     [
@@ -244,6 +250,7 @@ module.exports = function capitulo5() {
   c.push(U.p('El entorno de ejecución se define mediante contenedores, lo que elimina la necesidad de instalar y configurar manualmente el gestor de base de datos, el almacén en memoria y el entorno de ejecución del servicio. El despliegue completo se levanta con un único comando, condición que hace reproducible la instalación en cualquier máquina y que sostiene el criterio de reproducibilidad establecido en la sección 3.7.6.'));
 
   c.push(U.h2('5.6.4.', 'Riesgos técnicos y mitigaciones'));
+  c.push(U.p('El Cuadro 5.15 reúne los riesgos técnicos identificados con la medida prevista para cada uno.'));
   {
     const t = F.tabla('decisiones', 'Cuadro 2. Principales riesgos y sus mitigaciones');
     c.push(...U.cuadro('5.15', 'Riesgos técnicos identificados y sus mitigaciones',
