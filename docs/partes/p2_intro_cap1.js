@@ -7,7 +7,7 @@ module.exports = function introYCapitulo1() {
   // ===================== INTRODUCCIÓN =====================
   c.push(...U.portadaCapitulo('INTRODUCCIÓN', ''));
 
-  c.push(U.p('La ganadería bovina es una de las actividades económicas más importantes del departamento de Santa Cruz. El departamento concentra más del sesenta por ciento del hato bovino nacional, distribuido entre empresas agropecuarias de gran escala y cientos de productores organizados en asociaciones locales: la Asociación de Ganaderos de Pailón en la provincia Chiquitos, la de Abapó en Cordillera, y distintas agrupaciones de la Chiquitanía, como las de San Julián y Cuatro Cañadas.'));
+  c.push(U.p('La ganadería bovina es una de las actividades económicas más importantes del departamento de Santa Cruz. El departamento concentra alrededor del cuarenta y cuatro por ciento del hato bovino nacional y cerca del cuarenta y siete por ciento del valor de la producción bovina del país (Federación de Ganaderos de Santa Cruz, 2021; Instituto Nacional de Estadística, 2018). Ese hato se distribuye entre empresas agropecuarias de gran escala y cientos de productores organizados en asociaciones locales: la Asociación de Ganaderos de Pailón en la provincia Chiquitos, la de Abapó en Cordillera, y distintas agrupaciones de la Chiquitanía, como las de San Julián y Cuatro Cañadas.'));
   c.push(U.p('Buena parte de esos productores maneja el ganado hoy como se hacía hace décadas: con cuadernos, estimaciones visuales y memoria. El animal nace, se anota algo en un papel, y el resto queda en la cabeza del dueño. El historial de vacunas, los tratamientos y los eventos reproductivos dependen de que el productor los recuerde o los encuentre en alguna hoja suelta. No es falta de interés: es que no existe una herramienta que funcione en esas condiciones.'));
   c.push(U.p('El presente proyecto desarrolla GanaBol, un sistema móvil de gestión ganadera cuyo modo primario de operación es sin conexión, orientado a explotaciones bovinas tradicionales del departamento de Santa Cruz. El sistema permite registrar el inventario bovino con identificación individual, llevar el historial sanitario de cada animal, estimar su peso en campo a partir de medidas corporales sin pesarlo físicamente, y apoyar la decisión de venta mediante criterios objetivos.'));
   c.push(U.p('El alcance comprende una aplicación móvil desarrollada en Flutter, que opera sobre una base de datos local y consolida su información con un servicio central cuando dispone de conectividad, y un panel web de administración para la consulta de reportes. La metodología de desarrollo adoptada es el modelo incremental, que organiza la construcción en ciclos sucesivos, cada uno con sus propias fases de análisis, diseño, implementación y pruebas, y cada uno validado con productores antes de iniciar el siguiente.'));
@@ -22,11 +22,12 @@ module.exports = function introYCapitulo1() {
   c.push(U.h1('1.1.', 'Antecedentes'));
 
   c.push(U.h2('1.1.1.', 'Antecedentes institucionales'));
-  c.push(U.p('El departamento de Santa Cruz concentra más del sesenta por ciento del hato bovino de Bolivia. La Federación de Ganaderos de Santa Cruz agrupa a las asociaciones departamentales, entre ellas la Asociación de Ganaderos de Pailón en la provincia Chiquitos y la de Abapó en Cordillera, además de distintas agrupaciones de la Chiquitanía como las de San Julián y Cuatro Cañadas. Estas asociaciones reúnen a productores que operan en superficies extensas, con escasa cobertura de conectividad y acceso irregular a servicios técnicos.'));
+  c.push(U.p('El departamento de Santa Cruz concentra alrededor del cuarenta y cuatro por ciento del hato bovino nacional y cerca del cuarenta y siete por ciento del valor de la producción bovina del país (Federación de Ganaderos de Santa Cruz, 2021; Instituto Nacional de Estadística, 2018). La Federación de Ganaderos de Santa Cruz agrupa a las asociaciones departamentales, entre ellas la Asociación de Ganaderos de Pailón en la provincia Chiquitos y la de Abapó en Cordillera, además de distintas agrupaciones de la Chiquitanía como las de San Julián y Cuatro Cañadas. Estas asociaciones reúnen a productores que operan en superficies extensas, con escasa cobertura de conectividad y acceso irregular a servicios técnicos.'));
   c.push(U.p('El caso de aplicación del presente proyecto es el establecimiento ganadero Sabayones, propiedad familiar ubicada en la zona del Izozog, Chaco del departamento de Santa Cruz. El establecimiento opera bajo pastoreo extensivo en campo natural y presenta las condiciones que caracterizan a la mayoría de las explotaciones de la zona: ausencia de registros digitales, conectividad intermitente y distancias considerables entre las áreas de manejo del hato.'));
 
   c.push(U.h2('1.1.2.', 'Antecedentes tecnológicos'));
   c.push(U.p('El productor ganadero de la zona dispone hoy de más capacidad tecnológica de la que utiliza. El instrumento aplicado durante el diagnóstico reveló que el ochenta y siete por ciento de los encuestados posee un teléfono inteligente con capacidad técnica suficiente para ejecutar una aplicación de gestión, mientras que ninguno utiliza una herramienta digital especializada para el manejo de su hato. La brecha, por tanto, no está en el equipamiento disponible sino en la ausencia de software adecuado al contexto.'));
+  c.push(U.p('El dato nacional confirma esa asimetría. En los hogares rurales de Bolivia el acceso a internet alcanza apenas al cincuenta y tres coma nueve por ciento, mientras que el ochenta y uno coma cinco por ciento dispone de teléfono móvil (Instituto Nacional de Estadística, 2024). El dispositivo está; lo que falta es la red, y ese desfase es precisamente la condición que una aplicación con funcionamiento sin conexión aprovecha en lugar de padecer.'));
   c.push(U.p('En paralelo, la maduración de los marcos de desarrollo multiplataforma y de las bases de datos embebidas ha hecho viable construir aplicaciones que operan de forma autónoma sin conexión permanente, consolidando con un servicio central únicamente cuando la red está disponible. Esta capacidad técnica, que hace una década implicaba un esfuerzo de ingeniería considerable, hoy está al alcance de un proyecto de grado.'));
 
   c.push(U.h2('1.1.3.', 'Antecedentes investigativos'));
@@ -80,6 +81,24 @@ module.exports = function introYCapitulo1() {
     'Elaboración propia, 2026, a partir del diagnóstico aplicado a productores de Pailón, Abapó y San Julián.',
     { anchoMax: 600 }));
   c.push(U.p('La lectura del árbol de abajo hacia arriba explica por qué una solución parcial no resuelve el problema. Digitalizar el registro sin que funcione sin conexión deja intacta la causa raíz de la cuarta columna; incorporar conectividad sin resolver la estimación del peso deja intacta la de la tercera. El sistema que este proyecto propone actúa sobre las cuatro causas a la vez, y esa simultaneidad es lo que define su alcance.'));
+
+  c.push(U.h2('1.2.7.', 'Análisis estratégico del proyecto'));
+  c.push(U.p('El árbol ordena el problema; el análisis estratégico sitúa al proyecto frente a él. El Cuadro 1.2 presenta la matriz de fortalezas, oportunidades, debilidades y amenazas, que contrasta las condiciones internas del proyecto con las del entorno en que se aplicará.'));
+  c.push(...U.cuadro('1.2', 'Matriz de fortalezas, oportunidades, debilidades y amenazas del proyecto',
+    ['Fortalezas', 'Oportunidades'],
+    [
+      [
+        '— Demanda real validada mediante diagnóstico empírico con productores del área de influencia.\n— Acceso directo a usuarios reales para la validación piloto.\n— Conjunto de tecnologías maduro y sin costo de licencias.\n— Funcionamiento sin conexión asumido como decisión arquitectónica de primer orden.',
+        '— Inexistencia de una solución nacional adaptada al contexto productivo cruceño.\n— Expansión de la cobertura celular en zonas rurales del oriente boliviano.\n— Impulso de digitalización del SENASAG en materia de trazabilidad sanitaria.\n— Base potencial de usuarios en las provincias del departamento.',
+      ],
+      ['**Debilidades**', '**Amenazas**'],
+      [
+        '— Equipo de desarrollo conformado por una sola persona.\n— Recursos limitados para la validación experimental en campo.\n— Riesgo de alcance excesivo dada la cantidad de módulos funcionales planteados.',
+        '— Resistencia inicial del productor tradicional a la adopción de herramientas digitales.\n— Conectividad rural intermitente, condición que el sistema atenúa pero que también limita la consolidación con el servidor.\n— Eventual ingreso de competidores internacionales con plan gratuito.\n— Sostenibilidad posterior al piloto no garantizada por un proyecto académico.',
+      ],
+    ],
+    'Elaboración propia, 2026.', [0.5, 0.5]));
+  c.push(U.p('La lectura cruzada de la matriz explica dos decisiones del proyecto. La debilidad del equipo unipersonal frente al riesgo de alcance excesivo es lo que justifica la organización por incrementos cerrados, cada uno entregable por sí mismo. Y la amenaza de la conectividad intermitente, que es a la vez la oportunidad que ninguna solución existente aprovecha, es lo que convierte el funcionamiento sin conexión en el eje de la arquitectura y no en una característica más.'));
 
   c.push(U.h1('1.3.', 'Objeto de estudio y formulación del problema'));
 

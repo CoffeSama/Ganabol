@@ -291,7 +291,7 @@ module.exports = function capitulos6y7() {
   c.push(U.p('La validación técnica alcanzada al momento de redacción consiste en la verificación automatizada y el recorrido de la aplicación documentados en la sección 6.5. Su alcance es el del código construido, y no permite afirmar nada sobre los componentes que permanecen en estado de diseño. Corresponde señalar en particular que la precisión de la estimación de peso no está validada: lo verificado es que la fórmula se aplica de forma consistente en ambos extremos del sistema y que el procedimiento de calibración funciona, no que el peso estimado se aproxime al real dentro del margen declarado.'));
 
   c.push(U.h2('6.7.2.', 'Validación con usuarios'));
-  c.push(U.p('Las sesiones de validación con el grupo piloto se ejecutan al cierre de cada incremento conforme al protocolo establecido en la sección 3.6.3. El puntaje de usabilidad y los resultados de las tareas asignadas se incorporarán al presente capítulo conforme las sesiones se realicen.'));
+  c.push(U.p('Las sesiones de validación con el grupo piloto se ejecutan al cierre de cada incremento conforme al protocolo establecido en la sección 3.8.3. El puntaje de usabilidad y los resultados de las tareas asignadas se incorporarán al presente capítulo conforme las sesiones se realicen.'));
 
   c.push(U.h2('6.7.3.', 'Comparación con la situación inicial'));
   c.push(U.p('El contraste entre la situación diagnosticada y la situación alcanzada se realizará sobre los indicadores definidos en el Cuadro 3.2, una vez completadas las sesiones de validación. El indicador de mayor interés es el error de la estimación de peso frente al pesaje de referencia, por ser la funcionalidad que el propio diagnóstico identificó como de mayor impacto económico.'));

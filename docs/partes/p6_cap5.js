@@ -247,7 +247,7 @@ module.exports = function capitulo5() {
     'Elaboración propia, 2026.', [0.2, 0.38, 0.42]));
 
   c.push(U.h2('5.6.3.', 'Requerimientos de software'));
-  c.push(U.p('El entorno de ejecución se define mediante contenedores, lo que elimina la necesidad de instalar y configurar manualmente el gestor de base de datos, el almacén en memoria y el entorno de ejecución del servicio. El despliegue completo se levanta con un único comando, condición que hace reproducible la instalación en cualquier máquina y que sostiene el criterio de reproducibilidad establecido en la sección 3.7.6.'));
+  c.push(U.p('El entorno de ejecución se define mediante contenedores, lo que elimina la necesidad de instalar y configurar manualmente el gestor de base de datos, el almacén en memoria y el entorno de ejecución del servicio. El despliegue completo se levanta con un único comando, condición que hace reproducible la instalación en cualquier máquina y que sostiene el criterio de reproducibilidad establecido en la sección 3.9.6.'));
 
   c.push(U.h2('5.6.4.', 'Riesgos técnicos y mitigaciones'));
   c.push(U.p('El Cuadro 5.15 reúne los riesgos técnicos identificados con la medida prevista para cada uno.'));

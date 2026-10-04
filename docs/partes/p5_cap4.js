@@ -310,7 +310,7 @@ module.exports = function capitulo4() {
   c.push(U.p('El componente predominante del costo es el tiempo de desarrollo. Las herramientas de construcción, despliegue y notificación se obtienen bajo licencias libres o planes educativos, de modo que el costo de licenciamiento es nulo. El detalle del presupuesto se presenta en la sección 6.1.3.'));
 
   c.push(U.h2('4.7.4.', 'Factibilidad legal'));
-  c.push(U.p('No existen impedimentos legales. El stack es íntegramente de código abierto con licencias que permiten su uso, modificación y distribución. El tratamiento de la información se ajusta a las prácticas descritas en la sección 3.7, y el uso de los datos del establecimiento cuenta con autorización escrita de su propietario.'));
+  c.push(U.p('No existen impedimentos legales. El stack es íntegramente de código abierto con licencias que permiten su uso, modificación y distribución. El tratamiento de la información se ajusta a las prácticas descritas en la sección 3.9, y el uso de los datos del establecimiento cuenta con autorización escrita de su propietario.'));
 
   c.push(U.h2('4.7.5.', 'Factibilidad temporal'));
   c.push(U.p('El cronograma previsto es compatible con los plazos académicos establecidos por la universidad. La organización por incrementos reduce el riesgo de incumplimiento: aun si el alcance total no se completara, cada incremento cerrado constituye una versión funcional y entregable del sistema, y no un avance parcial inutilizable.'));

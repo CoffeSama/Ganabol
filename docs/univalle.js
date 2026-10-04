@@ -126,12 +126,16 @@ function celda(texto, ancho, { negrita = false, sombreado = false } = {}) {
     width: { size: ancho, type: WidthType.DXA },
     shading: sombreado ? { type: ShadingType.CLEAR, fill: 'D9D9D9' } : undefined,
     margins: { top: 70, bottom: 70, left: 100, right: 100 },
-    children: [new Paragraph({
-      alignment: AlignmentType.LEFT, spacing: { line: 240, after: 0 },
-      children: partirNegritas(texto).map(([t, f]) => new TextRun({
+    // Un salto de línea en el texto de la celda produce un párrafo propio: en
+    // un cuadro de enumeraciones, como la matriz estratégica, correrlas
+    // seguidas vuelve la celda ilegible.
+    children: texto.split('\n').map((linea, i, todas) => new Paragraph({
+      alignment: AlignmentType.LEFT,
+      spacing: { line: 240, after: i === todas.length - 1 ? 0 : 60 },
+      children: partirNegritas(linea).map(([t, f]) => new TextRun({
         text: t, font: FUENTE, size: 18, bold: negrita || f.bold,
       })),
-    })],
+    })),
   });
 }
 
