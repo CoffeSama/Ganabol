@@ -13,3 +13,8 @@ mobile/.flutter-plugins*
 mobile/ios/Pods/
 *.g.dart
 *.freezed.dart
+
+# Documentos generados: el repositorio versiona los generadores, no su salida.
+# El .docx se reconstruye con `node docs/generar.js` y `node docs/generar-acta.js`.
+*.docx
+*.pdf
