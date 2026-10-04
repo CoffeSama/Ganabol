@@ -8,7 +8,7 @@ module.exports = function cierre() {
   // ===================== CONCLUSIONES =====================
   c.push(...U.portadaCapitulo('CONCLUSIONES Y RECOMENDACIONES', ''));
 
-  c.push(U.tituloSimple('CONCLUSIONES', { before: 200, after: 300 }));
+  c.push(U.tituloSimple('CONCLUSIONES', { enIndice: true, before: 200, after: 300 }));
   c.push(U.p('Las conclusiones se formulan en correspondencia con los objetivos específicos planteados y con los resultados efectivamente obtenidos, distinguiendo lo verificado de lo proyectado.'));
 
   c.push(U.h2('1.', 'Respecto al diagnóstico y al análisis de requisitos'));
@@ -32,7 +32,7 @@ module.exports = function cierre() {
 
   // ===================== RECOMENDACIONES =====================
   c.push(U.saltoPagina());
-  c.push(U.tituloSimple('RECOMENDACIONES', { before: 200, after: 300 }));
+  c.push(U.tituloSimple('RECOMENDACIONES', { enIndice: true, before: 200, after: 300 }));
 
   c.push(U.h2('1.', 'Para la continuación del desarrollo'));
   c.push(U.p('Se recomienda cerrar la brecha del cifrado de la base de datos local antes de iniciar cualquier despliegue con datos reales de un establecimiento. El requisito está especificado y el diseño lo contempla, pero mientras no esté implementado el dispositivo transporta información comercial sensible sin protección en reposo, y el dispositivo viaja al campo y puede perderse.'));
@@ -56,7 +56,7 @@ module.exports = function cierre() {
 
   // ===================== REFERENCIAS =====================
   c.push(U.saltoPagina());
-  c.push(U.tituloSimple('REFERENCIAS BIBLIOGRÁFICAS', { before: 300, after: 300 }));
+  c.push(U.tituloSimple('REFERENCIAS BIBLIOGRÁFICAS', { enIndice: true, before: 300, after: 300 }));
   [
     'Ambler, S. W. (2002). Agile modeling: Effective practices for extreme programming and the unified process. Wiley.',
     'Bangor, A., Kortum, P. y Miller, J. (2009). Determining what individual SUS scores mean: Adding an adjective rating scale. Journal of Usability Studies, 4(3), 114–123.',
@@ -95,37 +95,6 @@ module.exports = function cierre() {
     'Wangchuk, K., Wangdi, J. y Mindu, M. (2018). Comparison and reliability of techniques to estimate live cattle body weight. Journal of Applied Animal Research, 46(1).',
     'World Wide Web Consortium. (2018). Web Content Accessibility Guidelines (WCAG) 2.1. W3C.',
   ].forEach((r) => c.push(U.referencia(r)));
-
-  // ===================== APÉNDICES =====================
-  c.push(U.saltoPagina());
-  c.push(U.tituloSimple('APÉNDICES', { before: 300, after: 300 }));
-  c.push(U.p('Los apéndices recogen material elaborado por el autor que amplía el contenido del documento sin resultar imprescindible para su lectura.'));
-  [
-    ['Apéndice A', 'Instrumento de diagnóstico aplicado a los productores, con sus cinco dimensiones y el detalle de las respuestas tabuladas.'],
-    ['Apéndice B', 'Guía de la entrevista semiestructurada aplicada a los especialistas del sector.'],
-    ['Apéndice C', 'Ficha de observación directa empleada en las visitas a las explotaciones.'],
-    ['Apéndice D', 'Especificación completa de los quince casos de uso del sistema.'],
-    ['Apéndice E', 'Diccionario de datos completo de las quince tablas del esquema relacional.'],
-    ['Apéndice F', 'Casos de prueba derivados de los criterios de verificación de cada requisito.'],
-    ['Apéndice G', 'Fragmentos seleccionados del código fuente de los módulos construidos.'],
-    ['Apéndice H', 'Manual de instalación y puesta en marcha del entorno completo.'],
-    ['Apéndice I', 'Manual de usuario de la aplicación móvil.'],
-  ].forEach(([a, d]) => c.push(U.pMixto([[`${a}. `, { bold: true }], [d]], { sinSangria: true, after: 120 })));
-
-  // ===================== ANEXOS =====================
-  c.push(U.saltoPagina());
-  c.push(U.tituloSimple('ANEXOS', { before: 300, after: 300 }));
-  c.push(U.p('Los anexos recogen documentación de respaldo no elaborada por el autor, o evidencia documental del trabajo de campo.'));
-  [
-    ['Anexo A', 'Carta de autorización del propietario del establecimiento ganadero que sirve de caso de aplicación.'],
-    ['Anexo B', 'Actas de las reuniones de levantamiento de requisitos con los productores y los especialistas consultados.'],
-    ['Anexo C', 'Registro fotográfico de las visitas de campo y de las condiciones de uso observadas.'],
-    ['Anexo D', 'Normativa del SENASAG aplicable a la identificación y al calendario sanitario del ganado bovino.'],
-    ['Anexo E', 'Resultados completos de la ejecución de las pruebas automatizadas.'],
-    ['Anexo F', 'Capturas de pantalla de la aplicación construida sobre el dispositivo de referencia.'],
-    ['Anexo G', 'Formularios de la escala de usabilidad aplicados en las sesiones de validación.'],
-    ['Anexo H', 'Actas de las sesiones de validación con el grupo piloto de productores.'],
-  ].forEach(([a, d]) => c.push(U.pMixto([[`${a}. `, { bold: true }], [d]], { sinSangria: true, after: 120 })));
 
   return c;
 };

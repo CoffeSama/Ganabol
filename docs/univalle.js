@@ -89,6 +89,7 @@ function portadaCapitulo(linea1, linea2) {
       children: [new TextRun({ text: linea1, font: FUENTE, size: NIVEL1, bold: true })],
     }),
     new Paragraph({
+      heading: HeadingLevel.HEADING_1,
       alignment: AlignmentType.CENTER, spacing: { after: 480 },
       children: [new TextRun({ text: linea2, font: FUENTE, size: NIVEL1, bold: true })],
     }),
@@ -99,8 +100,19 @@ function saltoPagina() {
   return new Paragraph({ children: [new PageBreak()] });
 }
 
+/**
+ * Título centrado sin numerar.
+ *
+ * Con `enIndice` se le asigna el estilo de encabezado de primer nivel, de modo
+ * que el índice lo recoja. Sin esa marca, secciones como las conclusiones, las
+ * referencias o los apéndices quedan fuera del índice, que es un defecto de
+ * forma visible: el lector no encuentra en el índice una sección que existe.
+ * La apariencia no cambia, porque la alineación y la tipografía se declaran de
+ * forma explícita y prevalecen sobre las del estilo.
+ */
 function tituloSimple(texto, opc = {}) {
   return new Paragraph({
+    heading: opc.enIndice ? HeadingLevel.HEADING_1 : undefined,
     alignment: opc.alignment ?? AlignmentType.CENTER,
     spacing: { before: opc.before ?? 240, after: opc.after ?? 240, line: INTERLINEADO },
     children: [new TextRun({ text: texto, font: FUENTE, size: opc.size ?? NIVEL1, bold: true })],
@@ -251,6 +263,32 @@ function vinheta(texto) {
   });
 }
 
+
+/**
+ * Línea de código fuente o de salida de consola.
+ *
+ * Va en tipografía monoespaciada y con interlineado sencillo: el código se lee
+ * por columnas tanto como por líneas, y el interlineado del cuerpo lo separa
+ * hasta volverlo irreconocible como bloque.
+ */
+function lineaCodigo(texto) {
+  return new Paragraph({
+    alignment: AlignmentType.LEFT,
+    spacing: { line: 200, after: 0 },
+    indent: { left: 283 },
+    children: [new TextRun({
+      text: texto.replace(/\t/g, '    ') || ' ',
+      font: 'Courier New',
+      size: 16,
+    })],
+  });
+}
+
+/** Bloque de código a partir de un arreglo de líneas. */
+function bloqueCodigo(lineas) {
+  return lineas.map(lineaCodigo);
+}
+
 /** Entrada de referencia bibliográfica con sangría francesa. */
 function referencia(texto) {
   return new Paragraph({
@@ -270,4 +308,5 @@ module.exports = {
   FUENTE, CUERPO, NIVEL1, NIVEL2, NIVEL3, MENOR, INTERLINEADO, ANCHO_TABLA,
   p, pMixto, h1, h2, h3, portadaCapitulo, saltoPagina, tituloSimple,
   cuadro, figura, vinheta, referencia, glosa, partirNegritas,
+  lineaCodigo, bloqueCodigo,
 };

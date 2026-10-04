@@ -23,6 +23,7 @@ const PARTES = [
   'p6_cap5',
   'p7_cap6_7',
   'p8_cierre',
+  'p9_apendices',
 ];
 
 function indiceDeContenido() {
