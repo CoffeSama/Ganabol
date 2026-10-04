@@ -75,15 +75,15 @@ module.exports = function introYCapitulo1() {
   c.push(U.p('Estas deficiencias convergen en cuatro problemas centrales: la ausencia de trazabilidad individual del ganado, la desactualización crónica de los registros, la falta de herramientas de apoyo a la comercialización y la imposibilidad de usar las soluciones existentes por la restricción de conectividad.'));
 
   // --- 1.3 Objeto de estudio y formulación ---
-  c.push(U.h2('1.2.6.', 'Árbol del problema'));
-  c.push(U.p('Las deficiencias descritas no son independientes entre sí: unas originan a otras, y todas convergen en un problema central del que se desprenden consecuencias económicas y sanitarias concretas. La Figura 1.1 ordena esa relación en los cuatro niveles habituales del análisis, de las causas raíz a los efectos.'));
-  c.push(...U.figura('arbol-problema.png', '1.1', 'Árbol del problema de la gestión del ganado bovino en explotaciones tradicionales',
+  c.push(U.h2('1.2.6.', 'Diagrama de causas del problema'));
+  c.push(U.p('Las deficiencias descritas no son independientes entre sí ni se reparten al azar: responden a cinco grupos de causas que el diagnóstico identificó de forma recurrente. La Figura 1.1 las ordena en un diagrama de causa y efecto, que agrupa en registro e información, medición, soluciones disponibles, entorno y personas las condiciones que sostienen el problema.'));
+  c.push(...U.figura('ishikawa-problema.png', '1.1', 'Diagrama de causas de la gestión poco sistematizada del ganado bovino',
     'Elaboración propia, 2026, a partir del diagnóstico aplicado a productores de Pailón, Abapó y San Julián.',
     { anchoMax: 600 }));
-  c.push(U.p('La lectura del árbol de abajo hacia arriba explica por qué una solución parcial no resuelve el problema. Digitalizar el registro sin que funcione sin conexión deja intacta la causa raíz de la cuarta columna; incorporar conectividad sin resolver la estimación del peso deja intacta la de la tercera. El sistema que este proyecto propone actúa sobre las cuatro causas a la vez, y esa simultaneidad es lo que define su alcance.'));
+  c.push(U.p('La agrupación explica por qué una solución parcial no resuelve el problema. Digitalizar el registro sin que la herramienta funcione sin conexión deja intactas las causas del grupo entorno; incorporar conectividad sin resolver la estimación del peso deja intactas las del grupo medición. Las causas del grupo soluciones disponibles son, además, las que explican por qué el problema persiste pese a existir oferta en el mercado: ninguna de las opciones relevadas opera sin conexión permanente. El sistema que este proyecto propone actúa sobre los cinco grupos a la vez, y esa simultaneidad es lo que define su alcance.'));
 
   c.push(U.h2('1.2.7.', 'Análisis estratégico del proyecto'));
-  c.push(U.p('El árbol ordena el problema; el análisis estratégico sitúa al proyecto frente a él. El Cuadro 1.2 presenta la matriz de fortalezas, oportunidades, debilidades y amenazas, que contrasta las condiciones internas del proyecto con las del entorno en que se aplicará.'));
+  c.push(U.p('El diagrama de causas ordena el problema; el análisis estratégico sitúa al proyecto frente a él. El Cuadro 1.2 presenta la matriz de fortalezas, oportunidades, debilidades y amenazas, que contrasta las condiciones internas del proyecto con las del entorno en que se aplicará.'));
   c.push(...U.cuadro('1.2', 'Matriz de fortalezas, oportunidades, debilidades y amenazas del proyecto',
     ['Fortalezas', 'Oportunidades'],
     [
