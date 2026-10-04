@@ -35,33 +35,60 @@ module.exports = function capitulo5() {
       'Elaboración propia, 2026.', [0.2, 0.26, 0.54]));
   }
 
-  c.push(U.h2('5.1.3.', 'Arquitectura lógica'));
+  c.push(U.h2('5.1.3.', 'Alternativas consideradas y criterio de selección'));
+  c.push(U.p('El cuadro anterior enuncia la elección de cada capa; conviene además dejar constancia de lo que se descartó y por qué, porque una decisión tecnológica solo es defendible si puede contrastarse con la alternativa que no se tomó. El Cuadro 5.2 reúne las opciones consideradas en cada decisión junto al criterio que resolvió cada una.'));
+  c.push(...U.cuadro('5.2', 'Alternativas consideradas en cada decisión tecnológica y criterio de selección',
+    ['Decisión y elección', 'Alternativas consideradas', 'Criterio decisivo y motivo del descarte'],
+    [
+      ['Aplicación móvil\nFlutter (Dart)',
+       'Desarrollo nativo en Kotlin; React Native; aplicación web progresiva',
+       'El criterio es la persistencia local confiable con un solo desarrollador. El desarrollo nativo obligaría a mantener dos bases de código o a renunciar a una plataforma. React Native es también multiplataforma, pero su puente con el código nativo añade una capa en las operaciones intensivas sobre la base embebida. La aplicación web progresiva queda descartada por una razón de fondo: su almacenamiento local depende del navegador y el sistema operativo puede liberarlo sin aviso, lo que resulta inadmisible cuando el registro aún no consolidado es el único ejemplar que existe.'],
+      ['Persistencia local\nSQLite con Drift',
+       'Realm; Hive; Isar; SQLite sin capa de tipado',
+       'El criterio es que el modelo del documento 05 es relacional, con quince tablas, claves foráneas y reglas de borrado. Hive e Isar son almacenes de objetos y expresar esa integridad en ellos equivaldría a reimplementarla en el código. Realm es embebido y ofrece sincronización propia, pero esa sincronización es un servicio gestionado con su propio modelo de conflictos, que es justamente lo que este proyecto necesita controlar. SQLite sin capa de tipado dejaría las migraciones de esquema a cargo de sentencias escritas a mano.'],
+      ['Motor de sincronización\nPropio, sobre identificadores generados en el dispositivo',
+       'Firebase (Firestore); Supabase; CouchDB con PouchDB',
+       'El criterio es que la resolución de conflictos debe ser diferenciada por entidad: el último que escribe gana para los datos descriptivos, pero un peso o un evento sanitario divergente exige que el usuario resuelva. Firestore y Supabase aplican una política uniforme por documento o por fila, de modo que adoptarlos significaría perder en silencio precisamente el dato cuya pérdida el proyecto se propone evitar. CouchDB con PouchDB sí detecta conflictos mediante revisiones, pero impone un modelo de documentos sobre un dominio relacional y replica la base completa. Las tres opciones añaden además un costo recurrente o una dependencia de un proveedor externo que el perfil de usuario no sostiene.'],
+      ['Servicio central\nNestJS con Prisma',
+       'Express; Spring Boot; Laravel; Django',
+       'El criterio es el tipado estático del dominio y la correspondencia entre la estructura del código y los módulos del negocio. Express no impone estructura, y con quince módulos la organización quedaría librada al criterio del autor en cada archivo. Spring Boot y Laravel son maduros, pero incorporarían un tercer lenguaje al proyecto: con NestJS, el servicio y el panel web comparten el de la plataforma móvil en su familia de herramientas, lo que importa cuando una sola persona mantiene las tres partes.'],
+      ['Base de datos del servidor\nPostgreSQL 16',
+       'MySQL; MongoDB; SQL Server',
+       'El criterio es la integridad declarada en la base y la exactitud del tipo numérico. MongoDB queda descartado porque las reglas de integridad del diseño se expresan como claves foráneas con regla de borrado, que en un almacén de documentos habría que sostener desde la aplicación. MySQL es equivalente en lo esencial; se elige PostgreSQL por sus tipos enumerados, que convierten los dominios categóricos del diccionario en una restricción verificada, por su decimal exacto para el peso estimado y por su recuperación a un punto anterior en el tiempo.'],
+      ['Panel de administración\nNext.js',
+       'Angular; React sin marco de trabajo; aplicación de escritorio',
+       'El criterio es que el panel se consulta desde el navegador de una oficina con conexión y no requiere funcionamiento autónomo. Angular impondría una estructura más pesada de la que tres pantallas de consulta justifican. React sin marco de trabajo exigiría resolver por separado el enrutamiento y la representación en el servidor. Una aplicación de escritorio obligaría a instalar y actualizar en cada equipo.'],
+    ],
+    'Elaboración propia, 2026.', [0.19, 0.19, 0.62]));
+  c.push(U.p('La decisión del motor de sincronización es la que más conviene retener, porque es la que distingue a este sistema de una aplicación con respaldo en la nube. Las plataformas descartadas resuelven el funcionamiento sin conexión y lo hacen bien, pero todas aplican la misma política de resolución a todos los datos. En este dominio esa uniformidad es el problema: que el nombre de un potrero se resuelva por el último cambio es razonable, y que un peso estimado o la fecha de una vacuna se resuelvan del mismo modo no lo es, porque un dato sanitario perdido en silencio reaparece como un animal vacunado dos veces o sin vacunar. Construir el motor fue la consecuencia de esa distinción, no una preferencia por escribir código propio.'));
+
+  c.push(U.h2('5.1.4.', 'Arquitectura lógica'));
   c.push(U.p('El código se organiza según los principios de arquitectura limpia, con las dependencias dirigidas hacia el núcleo del negocio. En la capa de dominio residen las entidades y los contratos de repositorio; en la de aplicación, los casos de uso; y en la de infraestructura, las implementaciones concretas de los repositorios, los controladores y la configuración de los marcos.'));
   c.push(U.p('Esta disposición tiene una consecuencia verificable: los casos de uso que contienen la lógica crítica del sistema pueden probarse sin levantar una base de datos ni un servidor, lo que hace alcanzable la cobertura de pruebas exigida por el requisito de mantenibilidad.'));
 
-  c.push(U.h2('5.1.4.', 'Arquitectura física'));
+  c.push(U.h2('5.1.5.', 'Arquitectura física'));
   c.push(U.p('El dispositivo móvil ejecuta la aplicación sobre una base SQLite cifrada que contiene el subconjunto operativo de la información. El servidor aloja el servicio central, la base PostgreSQL con el estado consolidado de todo el establecimiento, y el almacén en memoria que atiende las tareas de soporte. El panel administrativo se sirve como aplicación web y consume la misma interfaz de programación que la aplicación móvil.'));
 
-  c.push(U.h2('5.1.5.', 'Estrategia de operación sin conexión'));
+  c.push(U.h2('5.1.6.', 'Estrategia de operación sin conexión'));
   c.push(U.p('La operación sin conexión es el modo primario del sistema, dado que la conectividad en el campo es intermitente o inexistente. Esta condición gobierna cuatro decisiones de diseño que se enuncian a continuación.'));
 
-  c.push(U.h3('5.1.5.1.', 'Identificadores generados en el dispositivo'));
+  c.push(U.h3('5.1.6.1.', 'Identificadores generados en el dispositivo'));
   F.parrafos(F.seccion('decisiones', '3.1. Identificadores ULID', '3.2. Sincronización incremental'), { max: 2 })
     .forEach((t) => c.push(U.p(t)));
 
-  c.push(U.h3('5.1.5.2.', 'Sincronización incremental'));
+  c.push(U.h3('5.1.6.2.', 'Sincronización incremental'));
   F.parrafos(F.seccion('decisiones', '3.2. Sincronización incremental', '3.3. Resolución de conflictos'), { max: 2 })
     .forEach((t) => c.push(U.p(t)));
 
-  c.push(U.h3('5.1.5.3.', 'Resolución de conflictos'));
+  c.push(U.h3('5.1.6.3.', 'Resolución de conflictos'));
   F.parrafos(F.seccion('decisiones', '3.3. Resolución de conflictos', '3.4. Borrado lógico'), { max: 3 })
     .forEach((t) => c.push(U.p(t)));
 
-  c.push(U.h3('5.1.5.4.', 'Borrado lógico, marcas de baja e idempotencia'));
+  c.push(U.h3('5.1.6.4.', 'Borrado lógico, marcas de baja e idempotencia'));
   F.parrafos(F.seccion('decisiones', '3.4. Borrado lógico y marcas de baja', '4. ESTIMACIÓN DEL PESO'), { max: 3 })
     .forEach((t) => c.push(U.p(t)));
 
-  c.push(U.h2('5.1.6.', 'Diseño del cálculo del peso'));
+  c.push(U.h2('5.1.7.', 'Diseño del cálculo del peso'));
   F.parrafos(F.seccion('decisiones', '4.1. Método', '4.2. Calibración'), { max: 2 })
     .forEach((t) => c.push(U.p(t)));
   F.parrafos(F.seccion('decisiones', '4.2. Calibración para ganado cebú', '4.3. Margen de error'), { max: 2 })
@@ -73,7 +100,7 @@ module.exports = function capitulo5() {
     'Secuencia de la estimación del peso por método morfométrico',
     'Elaboración propia, 2026. Notación UML de diagrama de secuencia.'));
 
-  c.push(U.h2('5.1.7.', 'Justificación de la arquitectura seleccionada'));
+  c.push(U.h2('5.1.8.', 'Justificación de la arquitectura seleccionada'));
   c.push(U.p('La arquitectura adoptada responde a la restricción que define el problema: si la aplicación exigiera conexión, no sería utilizable en el entorno para el que se construye, y el proyecto perdería su razón de ser. Las alternativas descartadas lo fueron por esa misma razón. Una aplicación web que consulte siempre al servidor resulta más simple de construir, pero inoperante sin señal. Una aplicación que guarde localmente y sincronice con una política única de última escritura resulta más simple de sincronizar, pero admite que un registro de peso o un evento sanitario se pierda en silencio, lo que es inaceptable en este dominio.'));
   c.push(U.p('El costo de la arquitectura elegida es la complejidad de la consolidación, y se asume de forma deliberada porque es el único camino que satisface simultáneamente la autonomía en campo y la integridad de la información. La Figura 5.2 traza la secuencia correspondiente.'));
   c.push(...U.figura('a4eec3283b6fded066327be99261acf655cf9c22.png', '5.2',
@@ -88,18 +115,18 @@ module.exports = function capitulo5() {
   c.push(...U.figura('c5175288991200b94ea245a4950ac69e1c4d4076.png', '5.3',
     'Diagrama de clases del sistema',
     'Elaboración propia, 2026. Notación UML según Booch, Rumbaugh y Jacobson (2005).'));
-  c.push(U.p('El Cuadro 5.2 enumera las clases del modelo con la responsabilidad que asume cada una.'));
+  c.push(U.p('El Cuadro 5.3 enumera las clases del modelo con la responsabilidad que asume cada una.'));
   {
     const t = F.tabla('uml', 'Cuadro 2. Clases del modelo y su responsabilidad');
-    c.push(...U.cuadro('5.2', 'Clases del modelo y su responsabilidad',
+    c.push(...U.cuadro('5.3', 'Clases del modelo y su responsabilidad',
       t.encabezados, t.filas, 'Elaboración propia, 2026.', [0.24, 0.76]));
   }
 
   c.push(U.h2('5.2.2.', 'Asociaciones y multiplicidad'));
-  c.push(U.p('El Cuadro 5.3 detalla las asociaciones del modelo con su multiplicidad, que es lo que fija cuántas instancias de una clase pueden vincularse a cuántas de otra.'));
+  c.push(U.p('El Cuadro 5.4 detalla las asociaciones del modelo con su multiplicidad, que es lo que fija cuántas instancias de una clase pueden vincularse a cuántas de otra.'));
   {
     const t = F.tabla('uml', 'Cuadro 3. Asociaciones del modelo de clases');
-    c.push(...U.cuadro('5.3', 'Asociaciones del modelo de clases y su multiplicidad',
+    c.push(...U.cuadro('5.4', 'Asociaciones del modelo de clases y su multiplicidad',
       t.encabezados, t.filas, 'Elaboración propia, 2026.'));
   }
 
@@ -126,10 +153,10 @@ module.exports = function capitulo5() {
   c.push(...U.figura('770ab90fe4d78f5e24e1fb9c2a14d4f7fdcba9ce.png', '5.4',
     'Diagrama entidad-relación del sistema',
     'Elaboración propia, 2026. Notación según Elmasri y Navathe (2016).'));
-  c.push(U.p('El Cuadro 5.4 precisa la cardinalidad de cada relación del modelo conceptual.'));
+  c.push(U.p('El Cuadro 5.5 precisa la cardinalidad de cada relación del modelo conceptual.'));
   {
     const t = F.tabla('entidadRelacion', 'Cuadro 3. Relaciones del modelo conceptual');
-    c.push(...U.cuadro('5.4', 'Relaciones del modelo conceptual y su cardinalidad',
+    c.push(...U.cuadro('5.5', 'Relaciones del modelo conceptual y su cardinalidad',
       t.encabezados, t.filas, 'Elaboración propia, 2026.'));
   }
 
@@ -142,7 +169,7 @@ module.exports = function capitulo5() {
   c.push(...U.figura('1d8c4372cde51599f02616de4347045c68f92324.png', '5.5',
     'Esquema relacional de la base de datos',
     'Elaboración propia, 2026. Notación de esquema relacional según Elmasri y Navathe (2016).'));
-  c.push(U.p('El diccionario de datos describe cada tabla con sus columnas, su tipo, sus restricciones y su significado. Los Cuadros 5.5 a 5.11 recogen las tablas del núcleo operativo; el diccionario completo de las quince se incorpora como apéndice.'));
+  c.push(U.p('El diccionario de datos describe cada tabla con sus columnas, su tipo, sus restricciones y su significado. Los Cuadros 5.6 a 5.12 recogen las tablas del núcleo operativo; el diccionario completo de las quince se incorpora como apéndice.'));
 
   c.push(U.h2('5.3.4.', 'Modelo físico y diccionario de datos'));
   c.push(U.p('El gestor previsto en el servidor es PostgreSQL en su versión 16. El dispositivo replica el subconjunto operativo del esquema en SQLite, gestionado mediante Drift. El diccionario describe cada tabla con sus columnas, su tipo de dato, sus restricciones, su condición de nulidad y su significado; se indica con PK la clave primaria y con FK la clave foránea.'));
@@ -153,7 +180,7 @@ module.exports = function capitulo5() {
     c.push(U.p(`${descripcion}.`));
     const filas = F.tablaDespuesDe('baseDatos', `Tabla ${nombre}`)
       .filter((f) => f.length >= 4 && !/^columna$/i.test(f[0]));
-    c.push(...U.cuadro(`5.${5 + i}`, `Diccionario de datos: tabla ${nombre}`,
+    c.push(...U.cuadro(`5.${6 + i}`, `Diccionario de datos: tabla ${nombre}`,
       ['Columna', 'Tipo', 'Restricción', 'Nulo', 'Descripción'],
       filas.map((f) => [f[0], f[1], f[2] ?? '', f[3] ?? '', f[4] ?? '']),
       'Elaboración propia, 2026.', [0.19, 0.14, 0.13, 0.07, 0.47]));
@@ -161,10 +188,10 @@ module.exports = function capitulo5() {
 
   c.push(U.h2('5.3.5.', 'Políticas de integridad y consistencia'));
   c.push(U.p('Cada tabla tiene una clave primaria de tipo ULID, no nula y única. La tabla de usuarios impone unicidad sobre el correo electrónico y la de animales sobre el número de caravana. La referencia nutricional impone unicidad sobre la combinación de raza y categoría, y el detalle de venta emplea una clave compuesta que impide duplicar un animal dentro de una misma venta.'));
-  c.push(U.p('En las tablas operativas las bajas se realizan de forma lógica mediante la marca de eliminación, de modo que el registro pueda propagarse a los dispositivos en lugar de desaparecer sin rastro. Esta decisión condiciona las reglas de borrado en cascada: la integridad referencial protege el historial en lugar de permitir su pérdida. El Cuadro 5.12 las enumera con la regla de borrado que aplica a cada una.'));
+  c.push(U.p('En las tablas operativas las bajas se realizan de forma lógica mediante la marca de eliminación, de modo que el registro pueda propagarse a los dispositivos en lugar de desaparecer sin rastro. Esta decisión condiciona las reglas de borrado en cascada: la integridad referencial protege el historial en lugar de permitir su pérdida. El Cuadro 5.13 las enumera con la regla de borrado que aplica a cada una.'));
   {
     const t = F.tabla('baseDatos', 'Cuadro 11. Restricciones referenciales');
-    c.push(...U.cuadro('5.12', 'Restricciones referenciales del esquema',
+    c.push(...U.cuadro('5.13', 'Restricciones referenciales del esquema',
       t.encabezados, t.filas,
       'Reglas de integridad referencial según Elmasri y Navathe (2016).', [0.25, 0.17, 0.14, 0.44]));
   }
@@ -202,10 +229,10 @@ module.exports = function capitulo5() {
   c.push(U.h1('5.5.', 'Diseño de seguridad'));
 
   c.push(U.h2('5.5.1.', 'Identificación de activos'));
-  c.push(U.p('Los activos que el sistema debe proteger son tres: las credenciales de acceso de los usuarios, la información productiva y sanitaria del establecimiento —que es información comercial sensible—, y la integridad del historial de cada animal, cuya alteración o pérdida tiene consecuencias económicas y sanitarias no reversibles. El Cuadro 5.13 las enumera con el control previsto para cada una.'));
+  c.push(U.p('Los activos que el sistema debe proteger son tres: las credenciales de acceso de los usuarios, la información productiva y sanitaria del establecimiento —que es información comercial sensible—, y la integridad del historial de cada animal, cuya alteración o pérdida tiene consecuencias económicas y sanitarias no reversibles. El Cuadro 5.14 las enumera con el control previsto para cada una.'));
 
   c.push(U.h2('5.5.2.', 'Análisis de amenazas'));
-  c.push(...U.cuadro('5.13', 'Amenazas identificadas y controles previstos',
+  c.push(...U.cuadro('5.14', 'Amenazas identificadas y controles previstos',
     ['Amenaza', 'Activo afectado', 'Control previsto'],
     [
       ['Pérdida o sustracción del dispositivo en el campo', 'Información del establecimiento', 'Cifrado de la base de datos local en reposo'],
@@ -236,8 +263,8 @@ module.exports = function capitulo5() {
     .forEach((t) => c.push(U.p(t)));
 
   c.push(U.h2('5.6.2.', 'Requerimientos de hardware'));
-  c.push(U.p('El Cuadro 5.14 detalla el requerimiento de cada componente, tomando como referencia el equipamiento que el diagnóstico relevó en manos de los productores.'));
-  c.push(...U.cuadro('5.14', 'Requerimientos de hardware por componente',
+  c.push(U.p('El Cuadro 5.15 detalla el requerimiento de cada componente, tomando como referencia el equipamiento que el diagnóstico relevó en manos de los productores.'));
+  c.push(...U.cuadro('5.15', 'Requerimientos de hardware por componente',
     ['Componente', 'Requerimiento mínimo', 'Justificación'],
     [
       ['Dispositivo móvil', 'Teléfono de gama media con almacenamiento disponible para la base local', 'Es el equipamiento que el productor ya posee; el sistema no exige inversión adicional'],
@@ -250,10 +277,10 @@ module.exports = function capitulo5() {
   c.push(U.p('El entorno de ejecución se define mediante contenedores, lo que elimina la necesidad de instalar y configurar manualmente el gestor de base de datos, el almacén en memoria y el entorno de ejecución del servicio. El despliegue completo se levanta con un único comando, condición que hace reproducible la instalación en cualquier máquina y que sostiene el criterio de reproducibilidad establecido en la sección 3.9.6.'));
 
   c.push(U.h2('5.6.4.', 'Riesgos técnicos y mitigaciones'));
-  c.push(U.p('El Cuadro 5.15 reúne los riesgos técnicos identificados con la medida prevista para cada uno.'));
+  c.push(U.p('El Cuadro 5.16 reúne los riesgos técnicos identificados con la medida prevista para cada uno.'));
   {
     const t = F.tabla('decisiones', 'Cuadro 2. Principales riesgos y sus mitigaciones');
-    c.push(...U.cuadro('5.15', 'Riesgos técnicos identificados y sus mitigaciones',
+    c.push(...U.cuadro('5.16', 'Riesgos técnicos identificados y sus mitigaciones',
       t.encabezados, t.filas, 'Elaboración propia, 2026.'));
   }
 
