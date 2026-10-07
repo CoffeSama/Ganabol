@@ -135,7 +135,7 @@ function construir() {
 
   c.push(encabezado('UNIVERSIDAD PRIVADA DEL VALLE · FACULTAD DE INFORMÁTICA Y ELECTRÓNICA'));
   c.push(U.tituloSimple('ACTA DE LEVANTAMIENTO DE REQUERIMIENTOS', { before: 200, after: 120 }));
-  c.push(U.tituloSimple('Sistema móvil de gestión ganadera para explotaciones bovinas tradicionales',
+  c.push(U.tituloSimple('GanaBol: sistema móvil de gestión ganadera con funcionamiento sin conexión para explotaciones bovinas tradicionales del departamento de Santa Cruz',
     { size: U.NIVEL2, after: 320 }));
 
   // --- 1 ---

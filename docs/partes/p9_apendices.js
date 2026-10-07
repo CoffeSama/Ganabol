@@ -77,8 +77,8 @@ module.exports = function apendices() {
 
   [
     ['Apéndice A', 'Instrumento de diagnóstico aplicado a los productores, con sus cinco dimensiones y el detalle de las respuestas tabuladas.', false],
-    ['Apéndice B', 'Guía de la entrevista semiestructurada aplicada a los especialistas del sector.', false],
-    ['Apéndice C', 'Ficha de observación directa empleada en las visitas a las explotaciones.', false],
+    ['Apéndice B', 'Guía de la entrevista semiestructurada aplicada a los especialistas del sector.', true],
+    ['Apéndice C', 'Ficha de observación directa empleada en las visitas a las explotaciones.', true],
     ['Apéndice D', 'Especificación completa de los quince casos de uso del sistema.', true],
     ['Apéndice E', 'Diccionario de datos completo de las quince tablas del esquema relacional.', true],
     ['Apéndice F', 'Casos de prueba derivados de los criterios de verificación de cada requisito.', true],
@@ -90,6 +90,145 @@ module.exports = function apendices() {
     [d],
     [incluido ? ' Se incorpora a continuación.' : ' Pendiente de adjuntar.', { italics: true }],
   ], { sinSangria: true, after: 120 })));
+
+  // --- Apéndice B: guía de la entrevista -----------------------------------
+  c.push(U.saltoPagina());
+  c.push(U.tituloSimple('APÉNDICE B', { enIndice: true, before: 200, after: 120 }));
+  c.push(U.tituloSimple('Guía de la entrevista semiestructurada a especialistas', { size: U.NIVEL2, after: 240 }));
+  c.push(U.p('La guía se aplicó a tres especialistas del sector: dos médicos veterinarios en ejercicio en la zona y un técnico del Servicio Nacional de Sanidad Agropecuaria e Inocuidad Alimentaria. Su propósito fue establecer el contenido sanitario y reproductivo que el sistema debe modelar, materia en la que el criterio del productor no basta y la bibliografía general no alcanza al calendario que rige en el departamento.'));
+  c.push(U.p('La modalidad es semiestructurada: las preguntas fijan los temas que la entrevista debe cubrir, pero el entrevistado desarrolla su respuesta sin la restricción de un cuestionario cerrado. Por eso cada bloque enuncia además lo que la pregunta busca determinar, que es el dato que la entrevista debía producir con independencia de la forma que tomara la conversación.'));
+
+  c.push(...U.cuadro('B.1', 'Datos de registro de cada entrevista',
+    ['Campo', 'Contenido'],
+    [
+      ['Código del entrevistado', 'E-01, E-02 o E-03'],
+      ['Especialidad y años de ejercicio', 'Se consigna sin el nombre, conforme al tratamiento de datos personales de la sección 3.9.1'],
+      ['Zona de trabajo', 'Localidad o corredor ganadero en que ejerce'],
+      ['Fecha y duración', 'Fecha de la entrevista y tiempo efectivo de la conversación'],
+      ['Modalidad', 'Presencial o a distancia'],
+      ['Registro empleado', 'Notas escritas o grabación con autorización del entrevistado'],
+    ],
+    'Elaboración propia, 2026.', [0.3, 0.7]));
+
+  const BLOQUES_ENTREVISTA = [
+    ['Bloque 1. Calendario sanitario obligatorio', [
+      ['¿Qué aplicaciones sanitarias son obligatorias en el departamento y con qué periodicidad?',
+       'La lista de protocolos obligatorios y su frecuencia, que el sistema precarga.'],
+      ['¿Qué margen admite la campaña oficial antiaftosa y qué consecuencia tiene aplicarla fuera de la ventana?',
+       'La ventana de anticipación con que el calendario debe avisar.'],
+      ['¿Qué constancia exige la normativa de cada aplicación y quién debe firmarla?',
+       'Los campos que el registro de un evento sanitario debe capturar para servir como respaldo.'],
+      ['¿Qué ocurre cuando un animal ingresa al establecimiento sin historial sanitario conocido?',
+       'La regla aplicable al animal cargado sin antecedentes, que el sistema no puede inventar.'],
+    ]],
+    ['Bloque 2. Protocolos preventivos por fase de manejo', [
+      ['¿Qué cuidados sanitarios requiere el ternero en la fase de crianza y en qué momento?',
+       'Los protocolos que el sistema debe programar por edad y no por fecha fija.'],
+      ['¿Qué problemas sanitarios aparecen con el estrés del destete y cómo se previenen?',
+       'Las alertas propias de la transición de fase.'],
+      ['¿Qué controles corresponden durante el engorde y con qué frecuencia?',
+       'La periodicidad de la desparasitación y de los controles de la fase final.'],
+      ['¿Qué protocolos se aplican solo a una categoría de animal y a cuál?',
+       'El alcance de cada protocolo, que determina a qué animales genera alerta.'],
+    ]],
+    ['Bloque 3. Criterios de registro y trazabilidad', [
+      ['¿Qué información de un tratamiento resulta imprescindible conservar y cuál es prescindible?',
+       'La distinción entre los campos obligatorios y los opcionales del evento sanitario.'],
+      ['¿Con qué frecuencia necesita consultar el historial de un animal antes de indicar un tratamiento?',
+       'La prioridad del historial individual frente a otras funciones.'],
+      ['¿Qué errores de registro observa con mayor frecuencia en los establecimientos?',
+       'Las validaciones que el sistema debe imponer en el momento de la carga.'],
+      ['¿Qué registro reproductivo resulta indispensable y cuál es el período de gestación que emplea en su práctica?',
+       'Los campos del evento reproductivo y la constante de la fecha probable de parto.'],
+    ]],
+    ['Bloque 4. Estimación del peso sin báscula', [
+      ['¿Qué método emplea o ha visto emplear para estimar el peso de un bovino sin báscula?',
+       'La aceptación del método morfométrico entre quienes trabajan en la zona.'],
+      ['¿Qué margen de error considera aceptable en una estimación destinada a una negociación de venta?',
+       'El umbral de error que el objetivo del sistema debe declarar.'],
+      ['¿Qué particularidades del ganado cebú de la zona afectarían a una fórmula derivada en razas europeas?',
+       'La necesidad de calibrar la constante y los factores que la afectan.'],
+    ]],
+    ['Bloque 5. Cierre', [
+      ['¿Qué función consideraría imprescindible en una herramienta de este tipo y cuál prescindible?',
+       'La priorización de los requerimientos desde el criterio técnico.'],
+      ['¿Qué riesgo advierte en que el productor dependa de una estimación en lugar de una medición?',
+       'Las advertencias que el sistema debe mostrar junto a un valor calculado.'],
+    ]],
+  ];
+
+  BLOQUES_ENTREVISTA.forEach(([titulo, preguntas], i) => {
+    c.push(U.p(titulo, { sinSangria: true, bold: true, before: 200, after: 120 }));
+    c.push(...U.cuadro(`B.${i + 2}`, titulo.replace(/^Bloque \d+\. /, ''),
+      ['N.º', 'Pregunta', 'Qué busca determinar'],
+      preguntas.map(([q, obj], j) => [String(j + 1), q, obj]),
+      'Elaboración propia, 2026.', [0.06, 0.47, 0.47]));
+  });
+
+  c.push(U.p('Las respuestas de los tres entrevistados fundamentan los protocolos precargados en el sistema, la ventana de anticipación de treinta días del calendario, los campos obligatorios del evento sanitario y la constante de gestación de doscientos ochenta y tres días, todos ellos documentados en el Capítulo V.'));
+
+  // --- Apéndice C: ficha de observación -----------------------------------
+  c.push(U.saltoPagina());
+  c.push(U.tituloSimple('APÉNDICE C', { enIndice: true, before: 200, after: 120 }));
+  c.push(U.tituloSimple('Ficha de observación directa en explotaciones', { size: U.NIVEL2, after: 240 }));
+  c.push(U.p('La ficha se completó durante las visitas a las explotaciones. Su propósito fue registrar las condiciones de trabajo que no se enuncian en una entrevista pero se observan en terreno: con qué dispositivo trabaja el personal, si hay señal en el lugar donde ocurre el hecho que se registra, cuánto tarda una anotación y de qué manera se lleva hoy el registro. Varias decisiones de interfaz del Capítulo V proceden de esta observación y no del cuestionario.'));
+  c.push(U.p('Se consigna una ficha por visita. Los campos de observación se completan por constatación directa y no por declaración del productor; cuando el dato proviene de lo que el productor refiere y no de lo observado, la ficha lo indica en la columna correspondiente.'));
+
+  c.push(...U.cuadro('C.1', 'Identificación de la visita',
+    ['Campo', 'Contenido'],
+    [
+      ['Código de la visita', 'V-01, V-02, …'],
+      ['Localidad', 'Zona o municipio del departamento'],
+      ['Fecha y hora de inicio y de cierre', 'Permite dimensionar la duración de la observación'],
+      ['Tamaño aproximado del hato', 'Rango, no cifra exacta, conforme a la sección 3.9.2'],
+      ['Fases presentes en el predio', 'Crianza, destete, engorde o combinación'],
+      ['Personas observadas y su rol', 'Sin consignar nombres'],
+    ],
+    'Elaboración propia, 2026.', [0.34, 0.66]));
+
+  const BLOQUES_OBSERVACION = [
+    ['Condiciones de conectividad', [
+      ['Señal de telefonía móvil en el casco del predio', 'Nula / intermitente / estable'],
+      ['Señal en el corral de manejo y en los potreros alejados', 'Nula / intermitente / estable, por punto observado'],
+      ['Disponibilidad de energía eléctrica para recargar el dispositivo', 'Red / generador / solar / ninguna'],
+      ['Frecuencia con que el personal baja al pueblo o accede a conexión', 'Diaria / semanal / mayor'],
+    ]],
+    ['Equipamiento disponible', [
+      ['Tipo de dispositivo que el personal porta en el campo', 'Teléfono inteligente / teléfono básico / ninguno'],
+      ['Antigüedad y estado aproximado del dispositivo', 'Observación directa'],
+      ['Almacenamiento disponible declarado en el dispositivo', 'Se consigna si el productor lo permite verificar'],
+      ['Uso de guantes, condiciones de suciedad, lluvia o sol directo al operar', 'Observación directa; condiciona el tamaño de los controles'],
+      ['Existencia de báscula ganadera en el predio o en la zona', 'Sí, en el predio / en la zona / no disponible'],
+    ]],
+    ['Prácticas actuales de registro', [
+      ['Soporte en que se registra hoy', 'Cuaderno / hojas sueltas / planilla digital / memoria'],
+      ['Momento en que se registra respecto del hecho', 'En el momento / al final de la jornada / después / no se registra'],
+      ['Tiempo observado en completar una anotación', 'Medición directa, en minutos'],
+      ['Forma de identificar al animal', 'Caravana / marca / seña / reconocimiento visual'],
+      ['Capacidad de recuperar un dato pasado del animal', 'Se solicita un dato concreto y se mide si se encuentra y en cuánto tiempo'],
+      ['Estado de conservación del soporte de registro', 'Observación directa'],
+    ]],
+    ['Organización del predio y del manejo', [
+      ['Número de potreros y forma de identificarlos', 'Observación directa'],
+      ['Distancia aproximada entre el casco y el potrero más alejado', 'Condiciona la autonomía exigida al dispositivo'],
+      ['Punto donde ocurren el pesaje y las aplicaciones sanitarias', 'Corral de manejo / brete / potrero'],
+      ['Personas que intervienen en un mismo manejo', 'Determina si varios dispositivos registran a la vez'],
+    ]],
+    ['Indicios del problema diagnosticado', [
+      ['Forma en que se estima el peso al vender', 'A ojo / balanza del comprador / báscula propia'],
+      ['Existencia de constancia de las aplicaciones sanitarias', 'Sí, documentada / solo de memoria / inexistente'],
+      ['Casos referidos de aplicación repetida u omitida por falta de registro', 'Se consigna lo referido, distinguiéndolo de lo observado'],
+      ['Reacción del personal ante la idea de registrar en el teléfono', 'Observación de la actitud, no de la declaración'],
+    ]],
+  ];
+
+  BLOQUES_OBSERVACION.forEach(([titulo, filas], i) => {
+    c.push(...U.cuadro(`C.${i + 2}`, titulo,
+      ['Aspecto observado', 'Registro'],
+      filas, 'Elaboración propia, 2026.', [0.52, 0.48]));
+  });
+
+  c.push(U.p('La ficha reserva al cierre un campo abierto para la observación no prevista, que es el que con mayor frecuencia aportó información útil: el dato que ninguna casilla anticipaba resultó ser, en varias visitas, el que explicaba por qué una práctica se mantiene.'));
 
   // --- Apéndice D: casos de uso -------------------------------------------
   c.push(U.saltoPagina());
