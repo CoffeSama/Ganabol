@@ -14,7 +14,7 @@ module.exports = function capitulos6y7() {
   c.push(U.h1('6.1.', 'Plan de desarrollo'));
 
   c.push(U.h2('6.1.1.', 'Organización por incrementos'));
-  c.push(U.p('El desarrollo se organiza en cuatro incrementos. El primero corresponde a la identidad, los accesos y la parametrización inicial, junto con el motor de sincronización. El segundo abarca el registro y la trazabilidad del inventario bovino y el historial sanitario con alertas. El tercero incorpora la estimación de peso mediante parámetros morfológicos y el mecanismo de evaluación ponderada para la selección de animales. El cuarto comprende el panel web de reportes consolidados. Cada incremento concluye con una sesión de validación con productores del grupo piloto. El Cuadro 6.1 detalla cada incremento con los requisitos que comprende y su estado.'));
+  c.push(U.p('El desarrollo se organiza en cuatro incrementos. El primero corresponde a la identidad, los accesos y la parametrización inicial, junto con el motor de sincronización. El segundo abarca el registro y la trazabilidad del inventario bovino y el historial sanitario con alertas. El tercero incorpora la estimación de peso mediante parámetros morfológicos y el mecanismo de evaluación ponderada para la selección de animales. El cuarto comprende el panel web de reportes consolidados. El método prevé que cada incremento concluya con una sesión de validación con productores del grupo piloto; al momento de redacción esas sesiones no se han realizado, según se consigna en la sección 3.7.8. El Cuadro 6.1 detalla cada incremento con los requisitos que comprende y su estado.'));
   c.push(...U.cuadro('6.1', 'Incrementos del desarrollo y requisitos que comprenden',
     ['Incremento', 'Alcance', 'Requisitos', 'Estado'],
     [
@@ -216,7 +216,7 @@ module.exports = function capitulos6y7() {
   c.push(U.h2('6.5.6.', 'Verificación estática del código'));
   c.push(U.p('El análisis estático de la aplicación móvil se ejecuta sobre el conjunto de reglas recomendado para el lenguaje, ampliado con reglas adicionales de estilo y de tipado explícito. El análisis no reporta advertencias ni errores. El servicio central se compila con verificación estricta de tipos y nulidad, de modo que una categoría entera de errores queda descartada antes de la ejecución.'));
 
-  c.push(U.h2('6.5.4.', 'Pruebas pendientes'));
+  c.push(U.h2('6.5.7.', 'Pruebas pendientes'));
   c.push(U.p('Las pruebas de rendimiento bajo carga concurrente, las de seguridad sobre los riesgos del OWASP Top 10 y las de aceptación con el grupo piloto corresponden a los incrementos cuya construcción está en curso, y se ejecutarán conforme al diseño establecido en la sección 5.7.'));
 
   // --- 6.6 ---

@@ -108,56 +108,70 @@ module.exports = function capitulo3() {
 
   // --- 3.5 ---
   c.push(U.h1('3.7.', 'Metodología de desarrollo del proyecto'));
-  c.push(U.p('Para la construcción del sistema se adopta el modelo incremental, fundamentado en la sección 2.4.4. Cada incremento contempla actividades de análisis, diseño, desarrollo y pruebas, y culmina con una versión utilizable que se valida con productores antes de avanzar al siguiente. Las fases que se describen a continuación se recorren dentro de cada incremento, no una sola vez a lo largo del proyecto.'));
+  c.push(U.p('La construcción del sistema siguió el modelo incremental, cuya elección se fundamenta en la sección 2.4.4. El desarrollo se organizó en cuatro incrementos, detallados en el Cuadro 6.1: el primero comprendió la identidad, los accesos y el motor de sincronización; el segundo, el inventario, la trazabilidad y el historial sanitario con alertas; el tercero, la estimación del peso y la evaluación ponderada; y el cuarto, el panel web de reportes consolidados.'));
+  c.push(U.p('Las fases que se describen a continuación se recorrieron dentro de cada incremento y no una sola vez a lo largo del proyecto. Al momento de redacción del presente documento, los incrementos primero y segundo se encuentran construidos y verificados, del tercero está construida la estimación morfométrica del peso, y el cuarto cuenta con su diseño completo. Para cada fase se indica qué produjo en este proyecto y en qué parte del documento consta.'));
 
   c.push(U.h2('3.7.1.', 'Fase de inicio'));
-  c.push(U.p('Delimitación del alcance del incremento, identificación de los requisitos que comprende y definición de sus criterios de aceptación. Esta fase produce el acuerdo verificable sobre qué significará que el incremento esté terminado.'));
+  c.push(U.p('Es la fase que delimita el alcance y fija los criterios de aceptación antes de construir. En este proyecto partió del perfil aprobado, cuya delimitación se recoge en la sección 1.8, y se concretó en las fichas de requisito del Capítulo IV: cada requisito funcional lleva un criterio de verificación redactado antes de su construcción, de modo que lo que significa que un incremento esté terminado quedó establecido de antemano y no se ajustó después a lo obtenido.'));
 
   c.push(U.h2('3.7.2.', 'Fase de planificación'));
-  c.push(U.p('Descomposición del alcance en tareas, estimación del esfuerzo y ordenamiento según dependencias técnicas. Se identifican además los riesgos del incremento y las medidas previstas para atenuarlos.'));
+  c.push(U.p('Es la fase que ordena el trabajo según sus dependencias. En este proyecto la dependencia decisiva fue técnica: ningún módulo podía registrar sin conexión antes de que existieran los identificadores generados en el dispositivo y el motor de sincronización, por lo que ambos se ubicaron en el primer incremento, aunque no aportan una funcionalidad visible para el productor. El resultado de la fase es el cronograma de la sección 6.1.2 y la gestión de riesgos de la sección 6.1.4.'));
 
   c.push(U.h2('3.7.3.', 'Fase de análisis'));
-  c.push(U.p('Detalle funcional de los requisitos del incremento: flujos principales y alternativos, reglas de negocio aplicables y condiciones de error. El producto de esta fase son las fichas de caso de uso y las reglas documentadas en el Capítulo IV.'));
+  c.push(U.p('Es la fase que detalla qué debe hacer el sistema. En este proyecto partió del diagnóstico de campo —la encuesta a veintitrés productores, las entrevistas a tres especialistas y la observación directa— y produjo los nueve procesos de negocio, los diecisiete requerimientos de usuario, los requisitos funcionales y no funcionales, las quince fichas de caso de uso y las doce reglas de negocio documentados en el Capítulo IV. El levantamiento con los interesados del establecimiento consta en el acta del Anexo B.'));
 
   c.push(U.h2('3.7.4.', 'Fase de diseño'));
-  c.push(U.p('Definición de la estructura de la solución: componentes, modelo de datos, contratos de la interfaz de programación y diseño de las pantallas. Las decisiones de esta fase se documentan en el Capítulo V.'));
+  c.push(U.p('Es la fase que define la estructura de la solución. En este proyecto produjo la arquitectura en tres componentes, la comparación de alternativas tecnológicas del Cuadro 5.2, el modelo de clases, el esquema relacional de quince tablas y la estrategia de resolución de conflictos diferenciada por entidad, documentados en el Capítulo V. El diseño se completó para los cuatro incrementos, incluidos los que aún no se construyen, de modo que la construcción pendiente parte de decisiones ya tomadas.'));
 
   c.push(U.h2('3.7.5.', 'Fase de construcción'));
-  c.push(U.p('Implementación del código del incremento, con pruebas unitarias escritas junto con la funcionalidad y no después de ella. Cada avance se versiona en el repositorio, de modo que el historial del control de versiones constituye el registro de la construcción.'));
+  c.push(U.p('Es la fase en que se escribe el código, con sus pruebas unitarias junto con la funcionalidad. En este proyecto la construcción se versionó en un repositorio Git, cuyo historial registra cada cambio con su fecha y su motivo, y comprendió el servicio central en NestJS, la aplicación móvil en Flutter y los dos esquemas de datos. La construcción del segundo incremento obligó a corregir el diseño en un punto: dos protocolos de vacunación aplicados al mismo animal compartían un único último evento, de modo que aplicar uno reiniciaba el conteo del otro, y se añadió al evento sanitario la referencia al protocolo que cumple. La sección 6.3 documenta lo construido.'));
 
   c.push(U.h2('3.7.6.', 'Fase de pruebas'));
-  c.push(U.p('Verificación del incremento en sus tres niveles: pruebas unitarias sobre la lógica de negocio, pruebas de integración sobre los puntos de acceso de la interfaz de programación, y pruebas del escenario de consolidación con red interrumpida, que es el de mayor riesgo técnico del sistema.'));
+  c.push(U.p('Es la fase que verifica el incremento contra sus criterios. En este proyecto se ejecutó en dos niveles. El primero, de pruebas automatizadas, comprende ciento veintiséis pruebas: cuarenta y ocho sobre el servicio central y setenta y ocho sobre la aplicación. El segundo consistió en recorrer la aplicación compilada contra el servidor real, en veinticinco escenarios, y fue el que detectó los tres defectos de mayor gravedad del proyecto —los identificadores generados en minúsculas, el código de respuesta del inicio de sesión y el corrimiento de las fechas en un día—, ninguno de los cuales podía aparecer en una prueba unitaria porque residían en el encuentro entre dos componentes. La sección 6.5 y el Cuadro 6.9 los documentan.'));
 
   c.push(U.h2('3.7.7.', 'Fase de despliegue'));
-  c.push(U.p('Publicación del incremento en el entorno de prueba y preparación de la versión instalable para las sesiones de validación con productores.'));
+  c.push(U.p('Es la fase que pone el incremento en un entorno donde puede usarse. En este proyecto se alcanzó el entorno de prueba: la base de datos se levanta mediante contenedores con un único comando, el servicio central opera sobre ella con una carga inicial de datos de prueba, y la aplicación se compiló y ejecutó para móvil, escritorio y navegador. El procedimiento consta en el Apéndice H. La versión instalable para las sesiones de validación con productores corresponde a la fase siguiente del cronograma.'));
 
   c.push(U.h2('3.7.8.', 'Fase de evaluación y cierre'));
-  c.push(U.p('Sesión de validación con productores del grupo piloto, contraste de los resultados contra los criterios de aceptación definidos en la fase de inicio, y registro de las observaciones que alimentarán el incremento siguiente. El incremento se da por cerrado cuando sus criterios se cumplen; las observaciones que no comprometen esos criterios se incorporan al alcance posterior en lugar de retrasar el cierre.'));
+  c.push(U.p('Es la fase que contrasta el resultado con los criterios de aceptación y decide el cierre del incremento. En este proyecto el contraste técnico se realizó para los incrementos construidos: sus requisitos se verificaron contra el criterio de cada ficha, con el resultado consignado en el Apéndice F. La validación con el grupo piloto de productores, prevista como parte de esta fase, no se ha realizado al momento de redacción del presente documento; su protocolo se describe en la sección 3.8.3 y sus resultados se incorporarán en los Anexos G y H.'));
 
   // --- 3.6 ---
   c.push(U.h1('3.8.', 'Métodos de evaluación'));
+  c.push(U.p('Se describen a continuación los siete métodos con que se evalúa el sistema. No todos pueden aplicarse en el mismo momento: los que miden el código pueden ejecutarse desde que este existe, mientras que los que miden el uso por parte del productor requieren una versión instalada en sus manos. El Cuadro 3.3 distingue los métodos ya aplicados de los pendientes, de modo que el lector sepa en cada caso si lo que sigue describe un resultado o un procedimiento previsto.'));
+  c.push(...U.cuadro('3.3', 'Estado de aplicación de los métodos de evaluación',
+    ['Método', 'Estado', 'Evidencia o condición pendiente'],
+    [
+      ['Evaluación funcional', 'Aplicado al alcance construido', 'Ciento veintiséis pruebas automatizadas y veinticinco escenarios de principio a fin (sección 6.5 y Apéndice F)'],
+      ['Calidad según ISO/IEC 25010', 'Aplicado parcialmente', 'Valoración por característica en el Capítulo VII, sobre el alcance construido'],
+      ['Usabilidad (SUS)', 'Pendiente', 'Requiere las sesiones con el grupo piloto'],
+      ['Rendimiento', 'Pendiente', 'Pruebas de carga concurrente diseñadas en la sección 5.7.4, sin ejecutar'],
+      ['Seguridad', 'Aplicado parcialmente', 'Verificados el resumen de contraseñas con argon2id y el control de acceso por rol; pendientes el cifrado de la base local y la revisión según el OWASP Top 10'],
+      ['Comparativa antes y después', 'Pendiente', 'Requiere el uso sostenido del sistema en el establecimiento'],
+      ['Validación con usuarios y expertos', 'Pendiente', 'Requiere las sesiones con el grupo piloto y la revisión del calendario por los especialistas'],
+    ],
+    'Elaboración propia, 2026.', [0.26, 0.2, 0.54]));
 
   c.push(U.h2('3.8.1.', 'Evaluación funcional'));
-  c.push(U.p('Verifica que cada requisito funcional se cumple según su criterio de verificación, establecido en la ficha correspondiente del Capítulo IV. La cobertura se controla mediante la matriz de trazabilidad: ningún requisito debe quedar sin al menos una prueba asociada.'));
+  c.push(U.p('Verifica que cada requisito funcional cumple el criterio de verificación de su ficha del Capítulo IV, y controla la cobertura mediante la matriz de trazabilidad: ningún requisito queda sin una prueba asociada. En este proyecto se aplicó a los requisitos construidos, y los de incrementos posteriores conservan su caso de prueba definido y sin ejecutar en el Apéndice F, de modo que el criterio quedó fijado antes de construir.'));
 
   c.push(U.h2('3.8.2.', 'Evaluación de calidad del software'));
-  c.push(U.p('Se estructura según las ocho características del modelo de calidad de producto de la norma ISO/IEC 25010, de modo que la valoración no dependa del criterio del desarrollador sino de un marco externo. El desarrollo de esta evaluación constituye el Capítulo VII.'));
+  c.push(U.p('Se estructura según las ocho características del modelo de calidad de producto de la norma ISO/IEC 25010, para que la valoración no dependa del criterio del desarrollador sino de un marco externo. En este proyecto se desarrolla en el Capítulo VII, que valora cada característica sobre lo construido y declara como parcial lo que depende de la parte pendiente.'));
 
   c.push(U.h2('3.8.3.', 'Evaluación de usabilidad'));
-  c.push(U.p('Se aplica la escala de usabilidad del sistema al cierre de cada sesión de validación. El instrumento consta de diez afirmaciones con respuesta en escala de cinco niveles y produce un puntaje único comparable entre sistemas. Se adopta como referencia un puntaje mínimo de setenta puntos, equivalente a una calificación de buena usabilidad según los rangos establecidos por Bangor et al. (2009).'));
-  c.push(U.p('Las sesiones siguen un protocolo en el que el productor opera la aplicación de forma autónoma, sin asistencia del desarrollador durante la fase de uso, de modo que lo medido sea la claridad de la interfaz y no la calidad de la explicación recibida.'));
+  c.push(U.p('Se aplicará la escala de usabilidad del sistema al cierre de cada sesión de validación. El instrumento consta de diez afirmaciones con respuesta en escala de cinco niveles y produce un puntaje único comparable entre sistemas. Se adopta como referencia un puntaje mínimo de setenta puntos, equivalente a una calificación de buena usabilidad según los rangos establecidos por Bangor et al. (2009).'));
+  c.push(U.p('El protocolo prevé que el productor opere la aplicación de forma autónoma, sin asistencia del desarrollador durante la fase de uso, de modo que lo medido sea la claridad de la interfaz y no la calidad de la explicación recibida. Esta evaluación no se ha aplicado al momento de redacción del presente documento.'));
 
   c.push(U.h2('3.8.4.', 'Evaluación de rendimiento'));
-  c.push(U.p('Mide los tiempos de respuesta de las operaciones más frecuentes sobre el dispositivo de referencia, y el comportamiento del servicio central bajo escenarios de carga concurrente. Los criterios cuantitativos se establecen en los requisitos no funcionales del Capítulo IV.'));
+  c.push(U.p('Mide los tiempos de respuesta de las operaciones más frecuentes sobre el dispositivo de referencia y el comportamiento del servicio central bajo carga concurrente, contra los umbrales de los requisitos no funcionales del Capítulo IV. En este proyecto las pruebas de carga están diseñadas y su ejecución corresponde al cierre de la construcción, porque medir la carga sobre un servicio incompleto produciría una cifra que dejaría de valer al agregar los módulos restantes.'));
 
   c.push(U.h2('3.8.5.', 'Evaluación de seguridad'));
-  c.push(U.p('Verifica el cumplimiento de los controles previstos: aislamiento del acceso por rol, cifrado del transporte y de la base local, almacenamiento de contraseñas mediante función de derivación de clave, y ausencia de los riesgos del OWASP Top 10 aplicables al sistema.'));
+  c.push(U.p('Verifica el cumplimiento de los controles previstos: el aislamiento del acceso por rol, el cifrado del transporte y de la base local, el almacenamiento de contraseñas mediante una función de derivación de clave y la ausencia de los riesgos del OWASP Top 10 aplicables al sistema. En este proyecto están construidos y verificados el resumen de contraseñas con argon2id y la verificación del rol en cada función; el cifrado de la base local y la revisión según el OWASP Top 10 quedan pendientes, y así se consigna en el Cuadro 6.11.'));
 
   c.push(U.h2('3.8.6.', 'Evaluación comparativa antes y después'));
-  c.push(U.p('Contrasta la situación de partida documentada en el diagnóstico con la situación posterior a la incorporación del sistema, sobre indicadores observables: tiempo dedicado al registro, proporción de alertas sanitarias atendidas a tiempo y disponibilidad del historial individual al momento de decidir una venta.'));
+  c.push(U.p('Contrastará la situación de partida documentada en el diagnóstico con la posterior a la incorporación del sistema, sobre indicadores observables: el tiempo dedicado al registro, la proporción de alertas sanitarias atendidas a tiempo y la disponibilidad del historial individual al decidir una venta. Su aplicación requiere un período de uso sostenido en el establecimiento, posterior a la entrega de la versión instalable.'));
 
   c.push(U.h2('3.8.7.', 'Validación con usuarios y expertos'));
-  c.push(U.p('La validación con usuarios se realiza con el grupo piloto de productores. La validación con expertos se apoya en los especialistas entrevistados, a quienes se somete la coherencia del calendario sanitario implementado y la pertinencia de los criterios de la evaluación ponderada para la selección de animales.'));
+  c.push(U.p('La validación con usuarios se realizará con el grupo piloto de productores. La validación con expertos se apoyará en los especialistas entrevistados, a quienes se someterá la coherencia del calendario sanitario implementado y la pertinencia de los criterios de la evaluación ponderada. El calendario sanitario construido reproduce los protocolos relevados en esas entrevistas, documentados en el Apéndice B, de modo que la validación consistirá en contrastar el resultado con su propia fuente.'));
 
   // --- 3.7 ---
   c.push(U.h1('3.9.', 'Consideraciones éticas y de seguridad'));
