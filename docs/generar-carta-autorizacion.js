@@ -62,7 +62,7 @@ function construir() {
 
   c.push(U.p('De mi mayor consideración:', { sinSangria: true, after: 240 }));
 
-  c.push(parrafo(`Yo, ${VACIO}, con cédula de identidad N.º ${VACIO}, en mi calidad de propietario del establecimiento ganadero ${VACIO}, ubicado en ${VACIO} del departamento de Santa Cruz, por medio de la presente autorizo al estudiante Carlos Mateo Ibáñez Rodríguez, de la carrera de Ingeniería de Sistemas Informáticos de esta casa de estudios, a emplear información de mi establecimiento como caso de aplicación de su proyecto de grado titulado «GanaBol: sistema móvil de gestión ganadera con funcionamiento sin conexión para explotaciones bovinas tradicionales del departamento de Santa Cruz, Bolivia».`));
+  c.push(parrafo(`Yo, Carlos Alberto Ibáñez Blanco, con cédula de identidad N.º ${VACIO}, en mi calidad de propietario del establecimiento ganadero Sabayones, ubicado en la zona del Izozog, Chaco del departamento de Santa Cruz, por medio de la presente autorizo al estudiante Carlos Mateo Ibáñez Rodríguez, de la carrera de Ingeniería de Sistemas Informáticos de esta casa de estudios, a emplear información de mi establecimiento como caso de aplicación de su proyecto de grado titulado «GanaBol: sistema móvil de gestión ganadera con funcionamiento sin conexión para explotaciones bovinas tradicionales del departamento de Santa Cruz, Bolivia».`));
 
   c.push(parrafo('La autorización comprende el uso de la siguiente información, con fines exclusivamente académicos:'));
 
@@ -80,7 +80,7 @@ function construir() {
   c.push(parrafo('Sin otro particular, saludo a ustedes atentamente.'));
 
   c.push(...lineaFirma('Firma del propietario'));
-  c.push(U.p(`Nombre: ${VACIO}`, { sinSangria: true, alignment: AlignmentType.CENTER, after: 60 }));
+  c.push(U.p('Nombre: Carlos Alberto Ibáñez Blanco', { sinSangria: true, alignment: AlignmentType.CENTER, after: 60 }));
   c.push(U.p(`Cédula de identidad: ${VACIO}`, { sinSangria: true, alignment: AlignmentType.CENTER, after: 60 }));
   c.push(U.p(`Teléfono de contacto: ${VACIO}`, { sinSangria: true, alignment: AlignmentType.CENTER, after: 0 }));
 

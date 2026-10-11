@@ -138,10 +138,10 @@ const ACTORES = [
   },
   {
     prefijo: 'RU-ADM', nombre: 'ADMINISTRADOR', titulo: 'administrador',
-    funcion: 'Gestionar los usuarios, la configuración del establecimiento y el respaldo',
+    funcion: 'Gestionar los usuarios, la configuración del establecimiento y el respaldo (en Sabayones, el propietario)',
     necesidades: 'Controlar quién accede y con qué permisos, y mantener la configuración y la información resguardadas',
     interfaz: 'Panel web',
-    intro: 'Se plantea que el administrador necesita controlar quién accede al sistema y con qué permisos, mantener la configuración del establecimiento —potreros, protocolos sanitarios y parámetros— y garantizar que la información esté respaldada. Estas necesidades se validarán con él en la reunión.',
+    intro: 'En el establecimiento Sabayones no hay un administrador como cargo: este rol lo ejerce el propietario. Se plantea que, como administrador, necesita controlar quién accede al sistema y con qué permisos, mantener la configuración del establecimiento —potreros, protocolos sanitarios y parámetros— y garantizar que la información esté respaldada. Estas necesidades se validarán con él en la reunión.',
     filas: [
       ['RU-ADM-01', 'Necesito crear usuarios y asignarles un rol.', 'PRO', 'Debe', 'Cada usuario tiene uno de los cuatro roles: administrador, personal de campo, veterinario o propietario.', 'UR-01'],
       ['RU-ADM-02', 'Necesito desactivar a un usuario que ya no trabaja en el establecimiento.', 'PRO', 'Debe', 'Una cuenta desactivada no puede iniciar sesión ni sincronizar.', 'UR-01'],
@@ -155,10 +155,10 @@ const ACTORES = [
   },
   {
     prefijo: 'RU-CAM', nombre: 'PERSONAL DE CAMPO', titulo: 'personal de campo',
-    funcion: 'Registrar en el terreno los animales, los pesos, los eventos sanitarios y los movimientos',
+    funcion: 'Registrar en el terreno los animales, los pesos, los eventos sanitarios y los movimientos (en Sabayones, el casero y su ayudante)',
     necesidades: 'Registrar de forma rápida y sencilla en el corral, donde casi nunca hay señal',
     interfaz: 'Aplicación móvil sin conexión',
-    intro: 'Se plantea que el personal de campo necesita registrar los animales, sus pesos y sus eventos sanitarios en el corral, donde la señal es nula o intermitente, con una aplicación sencilla que no exija una báscula y que no pierda lo registrado. Estas necesidades se validarán con él en la reunión.',
+    intro: 'El personal de campo de Sabayones lo integran el casero y su ayudante, que realizan el manejo diario del hato. Se plantea que necesitan registrar los animales, sus pesos y sus eventos sanitarios en el corral, donde la señal es nula o intermitente, con una aplicación sencilla que no exija una báscula y que no pierda lo registrado. Estas necesidades se validarán con ellos en la reunión.',
     filas: [
       ['RU-CAM-01', 'Necesito entrar a la aplicación y seguir trabajando aunque no haya señal.', 'OBS', 'Debe', 'Tras el primer ingreso con conexión, la aplicación abre y opera sin conexión.', 'UR-03'],
       ['RU-CAM-02', 'Necesito registrar un animal con su número de caravana.', 'ENC', 'Debe', 'El animal se registra con caravana, raza, sexo, categoría, fecha de nacimiento y potrero.', 'UR-02'],
@@ -296,12 +296,14 @@ function construir() {
 
   c.push(rotulo('2.2 Participan'));
   c.push(tabla(['Código', 'Participante', 'Responsabilidad en el negocio'], [
-    ['C-01', 'Propietario', 'Decidir sobre el manejo, la venta y la reposición del hato'],
-    ['C-02', 'Administrador', 'Gestionar usuarios, configuración del establecimiento y respaldo de la información'],
-    ['C-03', 'Personal de campo', 'Registrar animales, pesos, eventos sanitarios y movimientos en el terreno'],
-    ['C-04', 'Veterinario', 'Atender la sanidad del hato y definir los tratamientos y calendarios sanitarios'],
+    ['C-01', 'Propietario (ejerce también como administrador)', 'Decidir sobre el manejo, la venta y la reposición del hato, y administrar los usuarios y la configuración del sistema'],
+    ['C-02', 'Casero (personal de campo)', 'Realizar el manejo diario del hato: animales, pesos, vacunas, destete y traslados'],
+    ['C-03', 'Ayudante del casero (personal de campo)', 'Apoyar al casero en el manejo diario y en el registro en el corral'],
+    ['C-04', 'Veterinario que atiende el establecimiento', 'Atender la sanidad del hato y definir los tratamientos y calendarios sanitarios'],
   ], [1500, 3000, 4860]));
   c.push(espacio());
+
+  c.push(parrafo('En el establecimiento no existe un administrador como cargo: la administración del sistema la ejerce el propietario. Por eso un mismo participante cubre los roles de propietario y de administrador, y el personal de campo lo integran dos personas, el casero y su ayudante.'));
 
   c.push(rotulo('2.3 Método empleado'));
   c.push(parrafo('Durante la reunión se utilizarán las siguientes técnicas:'));
@@ -435,9 +437,9 @@ function construir() {
   // 14
   c.push(titulo('14. Firmas de conformidad'));
   c.push(tabla(['Participante', 'Cargo', 'Firma', 'Fecha'], [
-    ['', 'Propietario', '', '__/__/2026'],
-    ['', 'Administrador', '', '__/__/2026'],
-    ['', 'Personal de campo', '', '__/__/2026'],
+    ['Carlos Alberto Ibáñez Blanco', 'Propietario y administrador', '', '__/__/2026'],
+    ['', 'Casero (personal de campo)', '', '__/__/2026'],
+    ['', 'Ayudante (personal de campo)', '', '__/__/2026'],
     ['', 'Veterinario', '', '__/__/2026'],
     ['Carlos Mateo Ibáñez Rodríguez', 'Analista de requerimientos', '', '__/__/2026'],
   ], [2800, 2800, 2000, 1760]));

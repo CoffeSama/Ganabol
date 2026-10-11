@@ -122,18 +122,29 @@ module.exports = function capitulo4() {
   c.push(U.p('El sistema reconoce cuatro tipos de usuario, que se corresponden con los actores identificados en el diagnóstico del proceso actual. El Cuadro 4.3 precisa la responsabilidad de cada uno dentro del sistema.'));
   {
     const t = F.tabla('srs', 'Cuadro 2. Actores del sistema y su responsabilidad');
+    // En una explotación pequeña la administración del sistema no la ejerce
+    // un técnico designado sino el propio propietario: el rol se describe
+    // por lo que hace, no por quién suele ocuparlo.
+    const filas = t.filas.map((f) => (f[0] === 'Administrador'
+      ? ['Administrador', 'Quien gestiona el sistema en el establecimiento; en explotaciones pequeñas, el propio propietario.', f[2]]
+      : f));
     c.push(...U.cuadro('4.3', 'Actores del sistema y su responsabilidad',
-      t.encabezados, t.filas,
+      t.encabezados, filas,
       'Elaboración propia a partir del diagnóstico aplicado a productores de Pailón, Abapó y San Julián, 2026.',
       [0.17, 0.33, 0.5]));
   }
+
+  c.push(U.p('Los cuatro tipos de usuario son roles del sistema y no cargos de la explotación, de modo que una misma persona puede ejercer más de uno. En el establecimiento Sabayones, que sirve de caso de aplicación, el propietario ejerce además el rol de administrador, porque no existe en la explotación una persona dedicada a esa función; el personal de campo lo integran el casero y su ayudante, que realizan el manejo diario del hato; y el veterinario es el profesional que atiende la sanidad del establecimiento. El diseño conserva los cuatro roles separados porque en una explotación de mayor tamaño la administración sí puede recaer en otra persona, y porque separar los permisos por rol es lo que permite que cada usuario vea únicamente lo que le corresponde.'));
 
   c.push(U.h2('4.3.2.', 'Perfil de los usuarios'));
   c.push(U.p('El perfil condiciona el diseño de la interfaz más que cualquier otra variable. El personal de campo, que es quien más usa el sistema, es también quien menos conocimiento informático tiene; de ahí que las pantallas de registro sean las más simples del sistema y las de administración las únicas que admiten densidad. El Cuadro 4.4 reúne el perfil de cada tipo de usuario previsto.'));
   {
     const t = F.tabla('srs', 'Cuadro 4. Perfil de los usuarios previstos');
+    const filas = t.filas.map((f) => (f[0] === 'Administrador'
+      ? ['Administrador', 'Variable; con frecuencia, el propietario', 'Semanal', 'Básico a medio']
+      : f));
     c.push(...U.cuadro('4.4', 'Perfil de los usuarios previstos',
-      t.encabezados, t.filas,
+      t.encabezados, filas,
       'Elaboración propia a partir del diagnóstico de productores de las zonas relevadas, 2026.'));
   }
 
